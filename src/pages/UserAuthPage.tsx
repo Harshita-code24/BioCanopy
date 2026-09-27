@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import {
+  AlertCircle,
   CheckCircle2,
+  Loader2,
   Lock,
   Mail,
   Trees,
@@ -13,35 +15,75 @@ import { useAuth } from '../store/AuthContext';
 
 export function UserAuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [name, setName] = useState('Neha Resident');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('neha.resident@biocanopy.demo');
   const [password, setPassword] = useState('citizen123');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const { login, signup } = useAuth();
   const navigate = useNavigate();
 
-  const handleAuth = (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload = {
-      name: mode === 'signup' ? name : 'Neha Resident',
-      email: mode === 'signup' ? email : 'neha.resident@biocanopy.demo',
-      role: 'citizen' as const,
-    };
-
-    if (mode === 'signup') {
-      signup(payload);
+  const handleModeChange = (newMode: 'login' | 'signup') => {
+    setMode(newMode);
+    setErrorMessage(null);
+    if (newMode === 'signup') {
+      setName('');
+      setEmail('');
+      setPassword('');
     } else {
-      login(payload);
+      setEmail('neha.resident@biocanopy.demo');
+      setPassword('citizen123');
     }
-    navigate('/dashboard');
   };
 
-  const handleQuickDemo = () => {
-    login({
-      name: 'Neha Resident',
-      email: 'neha.resident@biocanopy.demo',
-      role: 'citizen',
-    });
-    navigate('/dashboard');
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      if (mode === 'signup') {
+        const res = await signup({ name, email, password });
+        if (res.success) {
+          navigate('/dashboard');
+        } else {
+          setErrorMessage(res.message || 'Failed to create account.');
+        }
+      } else {
+        const res = await login({ email, password });
+        if (res.success) {
+          navigate('/dashboard');
+        } else {
+          setErrorMessage(res.message || 'Invalid email or password.');
+        }
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      setErrorMessage(error.message || 'Authentication error.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleQuickDemo = async () => {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      const res = await login({
+        email: 'neha.resident@biocanopy.demo',
+        password: 'citizen123',
+      });
+      if (res.success) {
+        navigate('/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch {
+      navigate('/dashboard');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -74,7 +116,7 @@ export function UserAuthPage() {
           <div className="grid grid-cols-2 gap-1 rounded-2xl bg-[#081412] p-1 border border-emerald-500/20">
             <button
               type="button"
-              onClick={() => setMode('login')}
+              onClick={() => handleModeChange('login')}
               className={`rounded-xl py-2 text-xs font-bold transition ${
                 mode === 'login'
                   ? 'bg-emerald-600 text-white shadow-sm'
@@ -85,7 +127,7 @@ export function UserAuthPage() {
             </button>
             <button
               type="button"
-              onClick={() => setMode('signup')}
+              onClick={() => handleModeChange('signup')}
               className={`rounded-xl py-2 text-xs font-bold transition ${
                 mode === 'signup'
                   ? 'bg-emerald-600 text-white shadow-sm'
@@ -96,8 +138,20 @@ export function UserAuthPage() {
             </button>
           </div>
 
+          {/* Error Message Alert */}
+          {errorMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-2.5 rounded-xl border border-red-500/40 bg-red-950/70 p-3 text-xs font-medium text-red-200 backdrop-blur-md"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+              <span>{errorMessage}</span>
+            </motion.div>
+          )}
+
           {/* Form */}
-          <form onSubmit={handleAuth} className="mt-6 space-y-4">
+          <form onSubmit={handleAuth} className="mt-5 space-y-4">
             {mode === 'signup' && (
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
@@ -153,9 +207,21 @@ export function UserAuthPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {mode === 'login' ? 'Sign In to BioCanopy' : 'Create Account'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <span>
+                    {mode === 'login' ? 'Verifying...' : 'Creating Account...'}
+                  </span>
+                </>
+              ) : (
+                <span>
+                  {mode === 'login' ? 'Sign In to BioCanopy' : 'Create Account'}
+                </span>
+              )}
             </button>
           </form>
 
@@ -164,7 +230,8 @@ export function UserAuthPage() {
             <button
               type="button"
               onClick={handleQuickDemo}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
             >
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
               <span>One-Click Demo as Citizen (Neha Resident)</span>
