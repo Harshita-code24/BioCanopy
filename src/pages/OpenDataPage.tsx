@@ -88,31 +88,31 @@ function GlowingGaugeCard({
 
   return (
     <div
-      className={`flex flex-col justify-between rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-6 backdrop-blur-xl transition hover:border-emerald-400/40 ${colors.glow}`}
+      className={`flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-4 sm:p-6 backdrop-blur-xl transition hover:border-emerald-400/40 ${colors.glow}`}
     >
       <div>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
+            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
               {label}
             </p>
             <div className="mt-1 flex items-baseline gap-1.5">
-              <span className="text-4xl font-black text-white">{value}</span>
-              <span className="text-sm font-bold text-[#94BDB2]">{unit}</span>
+              <span className="text-3xl sm:text-4xl font-black text-white">{value}</span>
+              <span className="text-xs sm:text-sm font-bold text-[#94BDB2]">{unit}</span>
             </div>
           </div>
 
           <span
-            className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${colors.badge}`}
+            className={`flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold shrink-0 ${colors.badge}`}
           >
-            <span className={`h-2 w-2 rounded-full ${colors.dot}`}></span>
+            <span className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${colors.dot}`}></span>
             {statusLabel}
           </span>
         </div>
 
         {/* Semi-Circular SVG Gauge */}
-        <div className="relative my-4 flex justify-center">
-          <svg className="h-32 w-48" viewBox="0 0 180 100">
+        <div className="relative my-3 sm:my-4 flex justify-center">
+          <svg className="h-28 w-44 sm:h-32 sm:w-48" viewBox="0 0 180 100">
             {/* Background Arch */}
             <path
               d="M 20 90 A 70 70 0 0 1 160 90"
@@ -156,20 +156,20 @@ function GlowingGaugeCard({
           </svg>
 
           <div className="absolute bottom-1 flex flex-col items-center">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/60">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/60">
               3-Band Simplified Scale
             </span>
           </div>
         </div>
 
         {/* Citizen Explanation */}
-        <div className="rounded-2xl bg-[#081412] p-3 text-xs leading-relaxed text-[#ECFDF5] border border-emerald-500/10">
+        <div className="rounded-xl sm:rounded-2xl bg-[#081412] p-2.5 sm:p-3 text-[11px] sm:text-xs leading-relaxed text-[#ECFDF5] border border-emerald-500/10">
           <p className="font-semibold">{description}</p>
         </div>
       </div>
 
       {/* Provenance Footnote */}
-      <div className="mt-4 flex items-center gap-2 border-t border-emerald-500/15 pt-3 text-[11px] text-[#94BDB2]">
+      <div className="mt-3 sm:mt-4 flex items-center gap-1.5 sm:gap-2 border-t border-emerald-500/15 pt-2.5 sm:pt-3 text-[10px] sm:text-[11px] text-[#94BDB2]">
         <ProvenanceIcon className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
         <span className="truncate">{provenance}</span>
       </div>
@@ -244,7 +244,7 @@ export function OpenDataPage() {
       </div>
 
       {/* 3 Glowing Gauges: Heat, AQI, Canopy */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
         <GlowingGaugeCard
           label={copy.heatIndexLabel}
           value={city.temperature}
@@ -291,27 +291,27 @@ export function OpenDataPage() {
       </div>
 
       {/* 24-Hour Diurnal Heat & Smog Curve (Recharts) */}
-      <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-6 shadow-card">
-        <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
+      <div className="rounded-2xl sm:rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-4 sm:p-6 shadow-card">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-emerald-500/20 pb-3 sm:pb-4">
           <div className="flex items-center gap-2.5">
-            <Clock className="h-5 w-5 text-emerald-400" />
+            <Clock className="h-5 w-5 text-emerald-400 shrink-0" />
             <div>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
                 24-Hour Diurnal Heat & Smog Forecast Curve
               </h3>
-              <p className="text-xs text-[#94BDB2]">
+              <p className="text-[11px] sm:text-xs text-[#94BDB2]">
                 Hourly surface heat peak from 12 PM to 5 PM mapped against particulate AQI
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
+          <span className="self-start sm:self-auto rounded-full bg-emerald-500/20 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold text-emerald-300 shrink-0">
             Ground Sensors + Satellites
           </span>
         </div>
 
-        <div className="mt-6 h-72 w-full">
+        <div className="mt-4 sm:mt-6 h-60 sm:h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={hourlyData}>
+            <AreaChart data={hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4} />
@@ -323,15 +323,15 @@ export function OpenDataPage() {
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="rgba(45,212,191,0.1)" strokeDasharray="4 4" />
-              <XAxis dataKey="hour" stroke="#94BDB2" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#94BDB2" tick={{ fontSize: 11 }} />
+              <XAxis dataKey="hour" stroke="#94BDB2" tick={{ fontSize: 10 }} />
+              <YAxis stroke="#94BDB2" tick={{ fontSize: 10 }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0A1B17',
                   borderColor: 'rgba(45,212,191,0.3)',
                   borderRadius: '16px',
                   color: '#ECFDF5',
-                  fontSize: '12px',
+                  fontSize: '11px',
                 }}
               />
               <Area

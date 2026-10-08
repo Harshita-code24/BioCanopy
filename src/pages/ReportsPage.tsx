@@ -27,6 +27,7 @@ export function ReportsPage() {
     upvoteReport,
   } = useAppState();
   const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [mobileView, setMobileView] = useState<'map' | 'feed'>('map');
 
   const cityCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
 
@@ -39,9 +40,9 @@ export function ReportsPage() {
   }, [reports, selectedCity, filterCategory]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Sleek Header Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-black text-white sm:text-2xl">
             Hazard Reporting · {selectedCity}
@@ -53,18 +54,48 @@ export function ReportsPage() {
 
         <button
           onClick={() => setIsReportModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 shrink-0"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 sm:py-2 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 shrink-0"
         >
           <Plus className="h-4 w-4" />
           <span>Report New Hazard</span>
         </button>
       </div>
 
+      {/* Mobile-Only Segmented View Switcher: Live Map vs Reports Feed */}
+      <div className="flex lg:hidden items-center p-1 rounded-2xl bg-[#0F2420] border border-emerald-500/20">
+        <button
+          type="button"
+          onClick={() => setMobileView('map')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition active:scale-95 ${
+            mobileView === 'map'
+              ? 'bg-emerald-600 text-white shadow-glow'
+              : 'text-[#94BDB2] hover:text-white'
+          }`}
+        >
+          <MapPin className="h-3.5 w-3.5" />
+          <span>Live Map ({filteredReports.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileView('feed')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition active:scale-95 ${
+            mobileView === 'feed'
+              ? 'bg-emerald-600 text-white shadow-glow'
+              : 'text-[#94BDB2] hover:text-white'
+          }`}
+        >
+          <Filter className="h-3.5 w-3.5" />
+          <span>Reports Feed ({filteredReports.length})</span>
+        </button>
+      </div>
+
       {/* Main Split Interface: Map on Left, Feed on Right */}
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         {/* Left: Interactive Public Hazard Map */}
-        <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-4 shadow-card flex flex-col">
-          <div className="flex items-center justify-between pb-3 px-2">
+        <div className={`rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-3.5 sm:p-4 shadow-card flex flex-col ${
+          mobileView === 'map' ? 'flex' : 'hidden lg:flex'
+        }`}>
+          <div className="flex items-center justify-between pb-3 px-1 sm:px-2">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-emerald-400" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -76,7 +107,7 @@ export function ReportsPage() {
             </span>
           </div>
 
-          <div className="relative h-[480px] w-full overflow-hidden rounded-2xl border border-emerald-500/20 bg-[#060F0D]">
+          <div className="relative h-[380px] xs:h-[440px] sm:h-[480px] w-full overflow-hidden rounded-2xl border border-emerald-500/20 bg-[#060F0D]">
             <MapContainer
               center={cityCoords}
               zoom={13}
@@ -134,7 +165,9 @@ export function ReportsPage() {
         </div>
 
         {/* Right: Filterable Community Feed */}
-        <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card flex flex-col">
+        <div className={`rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-4 sm:p-5 shadow-card flex flex-col ${
+          mobileView === 'feed' ? 'flex' : 'hidden lg:flex'
+        }`}>
           {/* Feed Filters */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/20 pb-4">
             <div className="flex items-center gap-2">

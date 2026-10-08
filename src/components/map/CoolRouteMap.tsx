@@ -108,31 +108,33 @@ export function CoolRouteMap() {
   return (
     <div className="relative flex flex-col overflow-hidden rounded-3xl border border-emerald-500/20 bg-[#0F2420] shadow-2xl">
       {/* Map Control Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-500/20 bg-[#0A1B17] px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
-            <Navigation className="h-4 w-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Cool-Route Navigation</span>
-              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
-                {selectedCity}
-              </span>
-            </h3>
-            <p className="text-[11px] font-medium text-[#94BDB2]">
-              Recommended 82% shaded green corridor vs direct unshaded asphalt
-            </p>
+      <div className="flex flex-col gap-2.5 sm:gap-3 border-b border-emerald-500/20 bg-[#0A1B17] px-3.5 py-3 sm:px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow shrink-0">
+              <Navigation className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                <span>Cool-Route Navigation</span>
+                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
+                  {selectedCity}
+                </span>
+              </h3>
+              <p className="text-[10px] sm:text-[11px] font-medium text-[#94BDB2] line-clamp-1">
+                Recommended 82% shaded green corridor vs direct unshaded asphalt
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Layer Toggles & Route Selectors */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Active Route Selector */}
           <div className="inline-flex rounded-xl bg-[#081412] p-1 border border-emerald-500/20">
             <button
               onClick={() => setActiveRouteId('cool')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1 text-xs font-bold transition active:scale-95 ${
                 activeRouteId === 'cool'
                   ? 'bg-emerald-600 text-white shadow-glow'
                   : 'text-[#94BDB2] hover:text-white'
@@ -143,7 +145,7 @@ export function CoolRouteMap() {
             </button>
             <button
               onClick={() => setActiveRouteId('fastest')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1 text-xs font-bold transition active:scale-95 ${
                 activeRouteId === 'fastest'
                   ? 'bg-red-500/30 text-red-200 ring-1 ring-red-500/50'
                   : 'text-[#94BDB2] hover:text-white'
@@ -157,33 +159,34 @@ export function CoolRouteMap() {
           {/* Heat Overlay Toggle */}
           <button
             onClick={() => setShowHeatOverlay(!showHeatOverlay)}
-            className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 py-1.5 text-xs font-bold transition active:scale-95 ${
               showHeatOverlay
                 ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
                 : 'border-emerald-500/20 bg-[#081412] text-[#94BDB2] hover:text-white'
             }`}
           >
-            <Thermometer className="h-3.5 w-3.5 text-amber-400" />
-            <span>Thermal Satellite</span>
+            <Thermometer className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+            <span className="hidden xs:inline">Thermal Satellite</span>
+            <span className="xs:hidden">Thermal</span>
           </button>
 
           {/* Citizen Pins Toggle */}
           <button
             onClick={() => setShowCitizenPins(!showCitizenPins)}
-            className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 py-1.5 text-xs font-bold transition active:scale-95 ${
               showCitizenPins
                 ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300'
                 : 'border-emerald-500/20 bg-[#081412] text-[#94BDB2] hover:text-white'
             }`}
           >
-            <AlertTriangle className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Hazard Pins ({cityReports.length})</span>
+            <AlertTriangle className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span>Pins ({cityReports.length})</span>
           </button>
         </div>
       </div>
 
       {/* Main Leaflet Map View (Dark Cartography) */}
-      <div className="relative h-[540px] w-full bg-[#060F0D] sm:h-[600px]">
+      <div className="relative h-[390px] xs:h-[450px] sm:h-[600px] w-full bg-[#060F0D]">
         <MapContainer
           center={cityCenter}
           zoom={14}
@@ -357,8 +360,44 @@ export function CoolRouteMap() {
             ))}
         </MapContainer>
 
-        {/* Floating Route Badges (Top-Left overlay) */}
-        <div className="absolute left-4 top-4 z-20 flex flex-col gap-2.5">
+        {/* Floating Route Badges (Mobile Compact Row vs Desktop Stacked Cards) */}
+        {/* Mobile: Top-Left Horizontal Pills */}
+        <div className="absolute left-2.5 top-2.5 z-20 flex sm:hidden items-center gap-1.5 max-w-[calc(100%-20px)] overflow-x-auto no-scrollbar pb-1">
+          <button
+            type="button"
+            onClick={() => setActiveRouteId('cool')}
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 shadow-xl backdrop-blur-xl transition shrink-0 active:scale-95 ${
+              activeRouteId === 'cool'
+                ? 'border-cyan-400 bg-cyan-950/90 text-white ring-1 ring-cyan-400/50'
+                : 'border-cyan-500/30 bg-[#0F2420]/90 text-[#94BDB2]'
+            }`}
+          >
+            <Trees className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+            <div className="text-left">
+              <span className="text-[11px] font-bold block leading-none">Cool Path</span>
+              <span className="text-[9px] text-cyan-300 font-semibold block leading-none mt-0.5">14m · 82% Shade</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveRouteId('fastest')}
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 shadow-xl backdrop-blur-xl transition shrink-0 active:scale-95 ${
+              activeRouteId === 'fastest'
+                ? 'border-red-600 bg-red-950/90 text-white ring-1 ring-red-600/50'
+                : 'border-red-800/40 bg-[#0F2420]/90 text-[#94BDB2]'
+            }`}
+          >
+            <Zap className="h-3.5 w-3.5 text-red-400 shrink-0" />
+            <div className="text-left">
+              <span className="text-[11px] font-bold block leading-none">Fastest Path</span>
+              <span className="text-[9px] text-red-400 font-medium block leading-none mt-0.5">12m · High Heat</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Desktop: Stacked Cards (Top-Left overlay) */}
+        <div className="absolute left-4 top-4 z-20 hidden sm:flex flex-col gap-2.5">
           {/* Badge 1: Recommended Cool Path (Light Turquoise Blue) */}
           <div
             onClick={() => setActiveRouteId('cool')}
@@ -416,22 +455,22 @@ export function CoolRouteMap() {
 
         {/* Simulated Active Navigation Overlay */}
         {isNavigating && (
-          <div className="absolute inset-x-4 top-4 z-20 mx-auto max-w-lg rounded-2xl border border-cyan-400/50 bg-[#0E231F]/95 p-4 shadow-2xl ring-2 ring-cyan-500/30 backdrop-blur-xl">
+          <div className="absolute inset-x-2.5 sm:inset-x-4 top-2 sm:top-4 z-30 mx-auto max-w-lg rounded-2xl border border-cyan-400/50 bg-[#0E231F]/95 p-3 sm:p-4 shadow-2xl ring-2 ring-cyan-500/30 backdrop-blur-xl">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-600 text-white animate-pulse shadow-[0_0_15px_rgba(34,211,238,0.5)]">
-                  <Navigation className="h-5 w-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-cyan-600 text-white animate-pulse shadow-[0_0_15px_rgba(34,211,238,0.5)] shrink-0">
+                  <Navigation className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
-                      Live Cool Guidance Active
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-cyan-300">
+                      Live Cool Guidance
                     </span>
-                    <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-200 ring-1 ring-cyan-400/40">
-                      Step {navigationStep + 1} of {coolRoute.turnInstructions.length}
+                    <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-cyan-200 ring-1 ring-cyan-400/40">
+                      {navigationStep + 1}/{coolRoute.turnInstructions.length}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white mt-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-white mt-0.5 sm:mt-1 leading-snug">
                     {coolRoute.turnInstructions[navigationStep]}
                   </h4>
                 </div>
@@ -445,10 +484,10 @@ export function CoolRouteMap() {
               </button>
             </div>
 
-            <div className="mt-3 flex items-center justify-between border-t border-cyan-500/20 pt-2 text-xs text-[#94BDB2]">
+            <div className="mt-2.5 sm:mt-3 flex items-center justify-between border-t border-cyan-500/20 pt-2 text-[11px] sm:text-xs text-[#94BDB2]">
               <div className="flex items-center gap-1.5 text-cyan-300 font-semibold">
-                <Trees className="h-4 w-4" />
-                <span>+82% Tree Canopy Shade</span>
+                <Trees className="h-3.5 w-3.5" />
+                <span>+82% Canopy Shade</span>
               </div>
               <span className="font-semibold text-white">
                 Arrival in ~14 mins
@@ -497,68 +536,69 @@ export function CoolRouteMap() {
       </div>
 
       {/* Bottom Floating Card: Route Comparison & Primary Action CTA */}
-      <div className="border-t border-emerald-500/20 bg-[#0A1B17] p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-cyan-500/30 bg-[#0F2420] p-3.5">
-              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide">
+      <div className="border-t border-emerald-500/20 bg-[#0A1B17] p-3.5 sm:p-5">
+        <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl border border-cyan-500/30 bg-[#0F2420] p-2.5 sm:p-3.5">
+              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide block truncate">
                 Cool Path
               </span>
-              <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-[#22D3EE]">14</span>
+              <div className="mt-0.5 sm:mt-1 flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-[#22D3EE]">14</span>
                 <span className="text-xs text-[#94BDB2]">mins</span>
               </div>
-              <p className="mt-0.5 text-xs font-bold text-cyan-300">
+              <p className="mt-0.5 text-[11px] sm:text-xs font-bold text-cyan-300 truncate">
                 82% Shaded Cover
               </p>
             </div>
 
-            <div className="rounded-2xl border border-red-800/40 bg-[#0F2420] p-3.5">
-              <span className="text-[10px] font-bold text-red-500 uppercase tracking-wide">
+            <div className="rounded-2xl border border-red-800/40 bg-[#0F2420] p-2.5 sm:p-3.5">
+              <span className="text-[10px] font-bold text-red-500 uppercase tracking-wide block truncate">
                 Fastest Path
               </span>
-              <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-red-500">12</span>
+              <div className="mt-0.5 sm:mt-1 flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-red-500">12</span>
                 <span className="text-xs text-[#94BDB2]">mins</span>
               </div>
-              <p className="mt-0.5 text-xs font-bold text-red-400">
+              <p className="mt-0.5 text-[11px] sm:text-xs font-bold text-red-400 truncate">
                 High Heat Exposure
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
+            <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-2.5 sm:p-3.5">
+              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide block truncate">
                 Heat Reduction
               </span>
-              <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-cyan-400">-34%</span>
+              <div className="mt-0.5 sm:mt-1 flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-cyan-400">-34%</span>
               </div>
-              <p className="mt-0.5 text-xs text-[#94BDB2]">
+              <p className="mt-0.5 text-[11px] sm:text-xs text-[#94BDB2] truncate">
                 vs direct bare asphalt
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
+            <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-2.5 sm:p-3.5">
+              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide block truncate">
                 Extra Commute
               </span>
-              <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">+2</span>
+              <div className="mt-0.5 sm:mt-1 flex items-baseline gap-1">
+                <span className="text-xl sm:text-2xl font-black text-white">+2</span>
                 <span className="text-xs text-[#94BDB2]">mins</span>
               </div>
-              <p className="mt-0.5 text-xs text-emerald-300 font-medium">
+              <p className="mt-0.5 text-[11px] sm:text-xs text-emerald-300 font-medium truncate">
                 Worth the comfort
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full lg:w-auto">
             <button
               onClick={() => setIsReportModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-[#0F2420] px-4 py-3 text-xs font-bold text-amber-300 hover:bg-amber-500/10"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 bg-[#0F2420] px-3 sm:px-4 py-3 text-xs font-bold text-amber-300 hover:bg-amber-500/10 active:scale-95 shrink-0"
+              title="Flag Heat Spot"
             >
-              <AlertTriangle className="h-4 w-4 text-amber-400" />
-              <span>Flag Heat Spot</span>
+              <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+              <span className="hidden xs:inline">Flag Heat Spot</span>
             </button>
 
             <button
@@ -566,11 +606,11 @@ export function CoolRouteMap() {
                 setActiveRouteId('cool');
                 setIsNavigating(!isNavigating);
               }}
-              className="flex-1 lg:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
+              className="flex-1 lg:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
             >
-              <Navigation className="h-4 w-4 text-white" />
+              <Navigation className="h-4 w-4 text-white shrink-0" />
               <span>{isNavigating ? 'Stop Navigation' : 'Start Shaded Route'}</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 shrink-0" />
             </button>
           </div>
         </div>

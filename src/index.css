@@ -11,6 +11,7 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -24,6 +25,17 @@ body {
     radial-gradient(circle at 85% 10%, rgba(74, 222, 128, 0.06), transparent 30%),
     linear-gradient(180deg, #081412 0%, #050D0C 100%);
   background-attachment: fixed;
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+/* Hide scrollbar while preserving scroll functionality for horizontal tabs/pills */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 * {

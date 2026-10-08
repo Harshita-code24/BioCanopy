@@ -112,7 +112,7 @@ export function UserAuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen text-[#ECFDF5] flex items-center justify-center px-4 py-12 overflow-hidden">
+    <div className="relative min-h-screen text-[#ECFDF5] flex items-center justify-center px-3.5 sm:px-4 py-8 sm:py-12 overflow-hidden">
       {/* Dynamic Animated Scenic Landscape & Leaves Background */}
       <AnimatedCanopyBackground />
 
@@ -123,26 +123,26 @@ export function UserAuthPage() {
         className="relative z-10 w-full max-w-md flex flex-col items-center"
       >
         {/* BioCanopy Brand & Simple Tagline on Top */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow mb-3">
-            <Trees className="h-8 w-8" />
+        <div className="mb-5 sm:mb-6 flex flex-col items-center text-center">
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow mb-2.5 sm:mb-3">
+            <Trees className="h-7 w-7 sm:h-8 sm:w-8" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <h1 className="text-2xl font-black tracking-tight text-white sm:text-4xl">
             Bio<span className="text-emerald-400">Canopy</span>
           </h1>
-          <p className="mt-2 text-sm text-[#94BDB2] font-medium tracking-wide">
+          <p className="mt-1.5 text-xs sm:text-sm text-[#94BDB2] font-medium tracking-wide">
             Air quality and heat
           </p>
         </div>
 
         {/* Centered Frosted Glass Auth Card */}
-        <div className="w-full rounded-3xl border border-emerald-500/30 bg-[#0F2420]/75 p-6 sm:p-8 shadow-elevated backdrop-blur-2xl">
+        <div className="w-full rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-[#0F2420]/80 p-4 xs:p-6 sm:p-8 shadow-elevated backdrop-blur-2xl">
           {/* Mode Switcher */}
           <div className="grid grid-cols-2 gap-1 rounded-2xl bg-[#081412] p-1 border border-emerald-500/20">
             <button
               type="button"
               onClick={() => handleModeChange('login')}
-              className={`rounded-xl py-2 text-xs font-bold transition ${
+              className={`rounded-xl py-2 text-xs font-bold transition active:scale-95 ${
                 mode === 'login'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-[#94BDB2] hover:text-white'
@@ -153,7 +153,7 @@ export function UserAuthPage() {
             <button
               type="button"
               onClick={() => handleModeChange('signup')}
-              className={`rounded-xl py-2 text-xs font-bold transition ${
+              className={`rounded-xl py-2 text-xs font-bold transition active:scale-95 ${
                 mode === 'signup'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-[#94BDB2] hover:text-white'
@@ -176,7 +176,7 @@ export function UserAuthPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleAuth} className="mt-5 space-y-4">
+          <form onSubmit={handleAuth} className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
             {mode === 'signup' && (
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
@@ -233,7 +233,7 @@ export function UserAuthPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs sm:text-sm font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -251,25 +251,25 @@ export function UserAuthPage() {
           </form>
 
           {/* Quick Demo 1-Click Action */}
-          <div className="mt-5 space-y-2 border-t border-emerald-500/20 pt-4">
+          <div className="mt-4 sm:mt-5 space-y-2 border-t border-emerald-500/20 pt-4">
             <button
               type="button"
               onClick={handleQuickDemo}
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 px-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 active:scale-95 disabled:opacity-50 text-center"
             >
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>One-Click Demo as Citizen (Neha Resident)</span>
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span className="truncate">One-Click Demo as Citizen (Neha Resident)</span>
             </button>
 
             <button
               type="button"
               onClick={handleAdminDemo}
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 py-2.5 px-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 active:scale-95 disabled:opacity-50 text-center"
             >
-              <ShieldCheck className="h-4 w-4 text-cyan-400" />
-              <span>One-Click Demo as Admin (BioCanopy Team)</span>
+              <ShieldCheck className="h-4 w-4 text-cyan-400 shrink-0" />
+              <span className="truncate">One-Click Demo as Admin (BioCanopy Team)</span>
             </button>
           </div>
         </div>

@@ -138,12 +138,12 @@ export function AppLayout() {
       <AnimatedCanopyBackground />
 
       {/* 1. Top Bar Navigation with Toggle Menu */}
-      <header className="sticky top-0 z-[1000] flex items-center justify-between border-b border-emerald-500/20 bg-[#081412]/80 px-3 py-2.5 sm:px-6 sm:py-3 backdrop-blur-xl transition-colors duration-300 shadow-sm">
-        <div className="flex items-center gap-2 sm:gap-3.5">
+      <header className="sticky top-0 z-[1000] flex items-center justify-between border-b border-emerald-500/20 bg-[#081412]/85 px-2.5 py-2 sm:px-6 sm:py-3 backdrop-blur-xl transition-colors duration-300 shadow-sm">
+        <div className="flex items-center gap-1.5 sm:gap-3.5">
           {/* Roll-Down Curtain Toggle Button */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 hover:bg-emerald-500/10 shadow-sm group"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 hover:bg-emerald-500/10 shadow-sm group active:scale-95"
             title={isSidebarOpen ? 'Roll up canopy menu' : 'Roll down canopy menu'}
           >
             <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition">
@@ -159,12 +159,12 @@ export function AppLayout() {
           </button>
 
           {/* Brand Logo in Top Bar */}
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
-              <Trees className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Link to="/dashboard" className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
+              <Trees className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             </div>
             <div className="hidden xs:block">
-              <span className="font-black text-white text-sm sm:text-base tracking-tight">
+              <span className="font-black text-white text-xs sm:text-base tracking-tight">
                 Bio<span className="text-emerald-400">Canopy</span>
               </span>
             </div>
@@ -174,15 +174,16 @@ export function AppLayout() {
           <div className="relative" ref={cityDropdownRef}>
             <button
               onClick={() => setIsCityOpen(!isCityOpen)}
-              className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400"
+              className="flex items-center gap-1 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 active:scale-95"
+              title="Change City"
             >
-              <MapPin className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="max-w-[70px] sm:max-w-none truncate">{selectedCity}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-[#94BDB2]" />
+              <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              <span className="max-w-[55px] xs:max-w-[75px] sm:max-w-none truncate">{selectedCity}</span>
+              <ChevronDown className="h-3 w-3 text-[#94BDB2] shrink-0" />
             </button>
 
             {isCityOpen && (
-              <div className="absolute left-0 mt-2 w-44 rounded-xl border border-emerald-500/30 bg-[#0F2420] p-1 shadow-2xl z-[1002]">
+              <div className="absolute left-0 mt-2 w-44 rounded-xl border border-emerald-500/30 bg-[#0F2420] p-1 shadow-2xl z-[1002] backdrop-blur-xl">
                 {cityMetrics.map((city) => (
                   <button
                     key={city.city}
@@ -206,15 +207,15 @@ export function AppLayout() {
         </div>
 
         {/* Right side controls: Theme Toggle, Language Selector, User, Hazard Report */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Theme Toggle Button (Grey Cloud Lightning for Dark, White Cloud Sun for Light) */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Theme Toggle Button */}
           <ThemeToggle />
 
-          {/* Language Selector Dropdown (Hindi, Marathi, English) */}
+          {/* Language Selector Dropdown (Responsive Compact Pill on mobile) */}
           <LanguageSelector />
 
-          {/* User Profile Pill */}
-          <div className="hidden md:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
+          {/* User Profile Pill (Desktop) */}
+          <div className="hidden lg:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
             <User className="h-3.5 w-3.5 text-emerald-400" />
             <span className="font-medium text-white max-w-[90px] truncate">{user?.name || 'User'}</span>
           </div>
@@ -222,29 +223,30 @@ export function AppLayout() {
           {/* Quick Action: Report Hazard */}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/30 shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-2 sm:px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/30 shadow-sm active:scale-95"
+            title={uiCopy.reportHazard}
           >
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
             <span className="hidden sm:inline">{uiCopy.reportHazard}</span>
           </button>
         </div>
       </header>
 
-      {/* 2. Roll-Down Curtain Canopy Navigation (Higher z-index than map & overlays) */}
+      {/* 2. Roll-Down Curtain Canopy Navigation */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            {/* Backdrop Overlay (z-[998]) */}
+            {/* Backdrop Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setIsSidebarOpen(false)}
               className="fixed inset-0 z-[998] bg-black/80 backdrop-blur-md"
             />
 
-            {/* Roll-Down Curtain Container (z-[999]) */}
+            {/* Roll-Down Curtain Container */}
             <motion.div
               initial={{ y: '-100%', opacity: 0.3 }}
               animate={{ y: 0, opacity: 1 }}
@@ -255,66 +257,66 @@ export function AppLayout() {
                 stiffness: 220,
                 mass: 0.85,
               }}
-              className="fixed inset-x-0 top-[57px] z-[999] max-h-[calc(100vh-57px)] overflow-y-auto border-b-2 border-emerald-500/40 bg-[#0A1B17]/92 shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(16,185,129,0.12)] backdrop-blur-2xl"
+              className="fixed inset-x-0 top-[52px] sm:top-[57px] z-[999] max-h-[calc(100vh-52px)] sm:max-h-[calc(100vh-57px)] overflow-y-auto border-b-2 border-emerald-500/40 bg-[#0A1B17]/95 shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(16,185,129,0.12)] backdrop-blur-2xl"
             >
-              <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-7">
+              <div className="mx-auto max-w-5xl px-3.5 py-5 sm:px-6 sm:py-7">
                 {/* Curtain Header */}
                 <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
-                      <Trees className="h-6 w-6" />
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
+                      <Trees className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-black tracking-tight text-white">
+                        <span className="text-base sm:text-lg font-black tracking-tight text-white">
                           Bio<span className="text-emerald-400">Canopy</span>
                         </span>
                         <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
                           {uiCopy.canopyMenu}
                         </span>
                       </div>
-                      <p className="text-xs font-semibold text-[#94BDB2]">
+                      <p className="text-[11px] sm:text-xs font-semibold text-[#94BDB2]">
                         {uiCopy.tagline}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     {/* User Profile Pill in Curtain */}
-                    <div className="hidden sm:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
-                      <User className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="font-bold text-white">{user?.name || 'User'}</span>
-                      <span className="text-[10px] uppercase text-emerald-400 font-semibold">(Citizen)</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs text-[#94BDB2]">
+                      <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-400" />
+                      <span className="font-bold text-white text-[11px] sm:text-xs max-w-[80px] sm:max-w-none truncate">{user?.name || 'User'}</span>
+                      <span className="hidden sm:inline text-[10px] uppercase text-emerald-400 font-semibold">({user?.role === 'admin' ? 'Admin' : 'Citizen'})</span>
                     </div>
 
                     {/* Roll Up Button */}
                     <button
                       onClick={() => setIsSidebarOpen(false)}
-                      className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 hover:text-white transition shadow-sm"
+                      className="flex items-center gap-1 sm:gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 hover:text-white transition shadow-sm active:scale-95"
                       title="Roll Up Menu"
                     >
                       <ChevronUp className="h-4 w-4" />
-                      <span>{uiCopy.rollUp}</span>
+                      <span className="hidden xs:inline">{uiCopy.rollUp}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Modules Grid inside Curtain */}
-                <div className="mt-5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/70 mb-3 px-1">
+                <div className="mt-4 sm:mt-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/70 mb-2.5 px-1">
                     {uiCopy.selectModule}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                     {navLinks.map(({ to, label, num, icon: Icon, badge }) => (
                       <NavLink
                         key={to}
                         to={to}
                         onClick={() => setIsSidebarOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center justify-between rounded-2xl border p-3.5 text-xs font-semibold transition group ${
+                          `flex items-center justify-between rounded-2xl border p-3 sm:p-3.5 text-xs font-semibold transition group active:scale-[0.98] ${
                             isActive
-                              ? 'border-emerald-400 bg-emerald-600/20 text-white shadow-glow'
-                              : 'border-emerald-500/20 bg-[#0F2420]/70 text-[#94BDB2] hover:border-emerald-400/40 hover:bg-[#0F2420] hover:text-white'
+                              ? 'border-emerald-400 bg-emerald-600/25 text-white shadow-glow'
+                              : 'border-emerald-500/20 bg-[#0F2420]/75 text-[#94BDB2] hover:border-emerald-400/40 hover:bg-[#0F2420] hover:text-white'
                           }`
                         }
                       >
@@ -336,23 +338,23 @@ export function AppLayout() {
                 </div>
 
                 {/* Bottom Row Actions */}
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-emerald-500/20 pt-4">
+                <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-between border-t border-emerald-500/20 pt-4">
                   <button
                     onClick={() => {
                       setIsSidebarOpen(false);
                       setIsReportModalOpen(true);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 px-3.5 py-2.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition active:scale-95"
                   >
-                    <AlertTriangle className="h-4 w-4 text-amber-400" />
+                    <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
                     <span>{uiCopy.reportHazard}</span>
                   </button>
 
                   <button
                     onClick={handleLogout}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 transition"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-xs font-bold text-red-300 hover:bg-red-500/20 transition active:scale-95"
                   >
-                    <LogOut className="h-3.5 w-3.5" />
+                    <LogOut className="h-3.5 w-3.5 shrink-0" />
                     <span>{uiCopy.logOut}</span>
                   </button>
                 </div>
@@ -361,7 +363,7 @@ export function AppLayout() {
                 <div className="mt-4 flex justify-center">
                   <button
                     onClick={() => setIsSidebarOpen(false)}
-                    className="group flex flex-col items-center gap-1 text-[10px] font-bold text-[#94BDB2] hover:text-emerald-300 transition cursor-pointer"
+                    className="group flex flex-col items-center gap-1 text-[10px] font-bold text-[#94BDB2] hover:text-emerald-300 transition cursor-pointer py-1"
                   >
                     <div className="h-1.5 w-16 rounded-full bg-emerald-500/40 group-hover:w-24 group-hover:bg-emerald-400 transition-all duration-300" />
                     <span className="flex items-center gap-1 opacity-75 group-hover:opacity-100">
@@ -376,7 +378,7 @@ export function AppLayout() {
       </AnimatePresence>
 
       {/* 3. Main Outlet Container (Positioned above animated background) */}
-      <main className="relative z-10 flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+      <main className="relative z-10 flex-1 p-3 xs:p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
