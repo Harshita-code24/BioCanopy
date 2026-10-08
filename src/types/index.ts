@@ -35,6 +35,8 @@ export type Report = {
   submittedAt: string;
   source: 'Citizen Mobile' | 'Field Observer' | 'Verified Geotag';
   upvotes?: number;
+  reporterName?: string;
+  reporterEmail?: string;
   issueType?: string;
   photoLabel?: string;
 };

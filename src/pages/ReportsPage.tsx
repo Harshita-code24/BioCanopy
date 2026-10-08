@@ -19,8 +19,13 @@ import { useAppState } from '../store/AppStateContext';
 import type { HazardCategory } from '../types';
 
 export function ReportsPage() {
-  const { reports, selectedCity, setIsReportModalOpen, updateReportStatus } =
-    useAppState();
+  const {
+    reports,
+    selectedCity,
+    setIsReportModalOpen,
+    updateReportStatus,
+    upvoteReport,
+  } = useAppState();
   const [filterCategory, setFilterCategory] = useState<string>('All');
 
   const cityCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
@@ -218,7 +223,11 @@ export function ReportsPage() {
                     {report.submittedAt} · {report.source}
                   </span>
 
-                  <button className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300">
+                  <button
+                    onClick={() => upvoteReport(report.id)}
+                    className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300 transition active:scale-95"
+                    title="Upvote to boost priority"
+                  >
                     <ThumbsUp className="h-3 w-3" />
                     <span>Upvote ({report.upvotes || 1})</span>
                   </button>

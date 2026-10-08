@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
+import reportsRoutes from './routes/reports.js';
+import telemetryRoutes from './routes/telemetry.js';
+import adminRoutes from './routes/admin.js';
 import './db.js'; // Ensure database initialization
 
 dotenv.config();
@@ -20,6 +23,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

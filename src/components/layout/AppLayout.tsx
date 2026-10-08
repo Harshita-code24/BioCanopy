@@ -8,6 +8,7 @@ import {
   LogOut,
   MapPin,
   Navigation,
+  ShieldCheck,
   Sparkles,
   Trees,
   User,
@@ -72,7 +73,22 @@ export function AppLayout() {
     ],
   };
 
-  const navLinks = localizedNav[language] || localizedNav.en;
+  const baseNavLinks = localizedNav[language] || localizedNav.en;
+  const adminItem = {
+    to: '/admin',
+    label:
+      language === 'hi'
+        ? 'प्राधिकरण कमांड'
+        : language === 'mr'
+        ? 'प्रशासन नियंत्रण'
+        : 'Authority Command',
+    num: '05',
+    icon: ShieldCheck,
+    badge: 'Admin',
+  };
+
+  const navLinks =
+    user?.role === 'admin' ? [...baseNavLinks, adminItem] : baseNavLinks;
 
   const uiCopy = {
     en: {

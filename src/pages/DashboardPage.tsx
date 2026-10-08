@@ -1,16 +1,16 @@
 import {
   Navigation,
+  Radio,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cityMetrics } from '../data/mockData';
 import { useAppState } from '../store/AppStateContext';
 import { useAuth } from '../store/AuthContext';
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const { selectedCity, reports } = useAppState();
+  const { selectedCity, reports, currentMetric, isLoadingTelemetry } = useAppState();
 
-  const city = cityMetrics.find((c) => c.city === selectedCity) ?? cityMetrics[0];
+  const city = currentMetric;
   const pendingReports = reports.filter((r) => r.city === selectedCity).length;
 
   return (
@@ -19,9 +19,20 @@ export function DashboardPage() {
       <div className="rounded-3xl border border-emerald-500/20 bg-[#0A1B17] p-6 sm:p-8 shadow-card">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300 ring-1 ring-emerald-500/30">
                 Welcome, {user?.name || 'User'}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300 ring-1 ring-cyan-500/30">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                </span>
+                <span>
+                  {isLoadingTelemetry
+                    ? 'Updating sensor telemetry...'
+                    : `${city.city} Live Satellite & Ground Feed`}
+                </span>
               </span>
             </div>
             <h1 className="mt-2 text-2xl font-black text-white sm:text-4xl tracking-tight">

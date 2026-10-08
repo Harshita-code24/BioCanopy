@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
+import { AdminPage } from './pages/AdminPage';
 import { AdvisorPage } from './pages/AdvisorPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapPage } from './pages/MapPage';
@@ -39,14 +40,14 @@ function AppRoutes() {
         <Route path="/auth" element={<Navigate to="/login" replace />} />
         <Route path="/admin-login" element={<Navigate to="/login" replace />} />
 
-        {/* Protected App Routes under AppLayout (Citizen Solutions) */}
+        {/* Protected App Routes under AppLayout */}
         <Route element={<ProtectedRoutes />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/open-data" element={<OpenDataPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/advisor" element={<AdvisorPage />} />
-          <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Route>
 
         {/* Root and Fallback */}

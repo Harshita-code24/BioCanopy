@@ -160,13 +160,10 @@ function ThreeBandGauge({
 }
 
 export function DataDashboard() {
-  const { selectedCity, language, setLanguage } = useAppState();
+  const { selectedCity, language, setLanguage, currentMetric } = useAppState();
   const copy = translations[language];
 
-  const city = useMemo(
-    () => cityMetrics.find((c) => c.city === selectedCity) ?? cityMetrics[0],
-    [selectedCity],
-  );
+  const city = currentMetric;
 
   // Band calculations for 3-band scale
   const heatBand: 'green' | 'amber' | 'red' =

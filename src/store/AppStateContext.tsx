@@ -15,6 +15,7 @@ import type {
   AiConditionPreset,
   AppTab,
   AuthorityZone,
+  CityMetric,
   Language,
   Report,
   ReportStatus,
@@ -28,6 +29,8 @@ type ToastInfo = {
 type AppStateValue = {
   selectedCity: string;
   setSelectedCity: (city: string) => void;
+  currentMetric: CityMetric;
+  isLoadingTelemetry: boolean;
   activeTab: AppTab;
   setActiveTab: (tab: AppTab) => void;
   language: Language;
@@ -36,6 +39,8 @@ type AppStateValue = {
   addReport: (
     report: Omit<Report, 'id' | 'submittedAt' | 'status' | 'source'>,
   ) => void;
+  upvoteReport: (id: string) => Promise<void>;
+  deleteReport: (id: string) => Promise<void>;
   updateReportStatus: (id: string, status: ReportStatus) => void;
   authorityZones: AuthorityZone[];
   dispatchPlantingTask: (zoneId: string) => void;
@@ -59,11 +64,21 @@ const LANG_KEY = 'biocanopy_lang_v2';
 const REPORTS_KEY = 'biocanopy_reports_v2';
 const ZONES_KEY = 'biocanopy_zones_v2';
 const CITY_KEY = 'biocanopy_city_v2';
+const API_REPORTS_URL = import.meta.env.VITE_API_REPORTS_URL || 'http://localhost:5000/api/reports';
+const API_TELEMETRY_URL = import.meta.env.VITE_API_TELEMETRY_URL || 'http://localhost:5000/api/telemetry';
 
 const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [selectedCity, setSelectedCity] = useState<string>(cityMetrics[0].city);
+  const [telemetry, setTelemetry] = useState<Record<string, CityMetric>>(() => {
+    const map: Record<string, CityMetric> = {};
+    for (const m of cityMetrics) {
+      map[m.city] = m;
+    }
+    return map;
+  });
+  const [isLoadingTelemetry, setIsLoadingTelemetry] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<AppTab>('map');
   const [language, setLanguage] = useState<Language>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -99,6 +114,57 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       console.error('Failed to load local storage state:', e);
     }
   }, []);
+
+  // Fetch live community hazard reports from SQLite backend
+  useEffect(() => {
+    const fetchBackendReports = async () => {
+      try {
+        const res = await fetch(API_REPORTS_URL);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setReports(data);
+          }
+        }
+      } catch (err) {
+        console.warn('Backend reports API offline, using cached data:', err);
+      }
+    };
+    fetchBackendReports();
+  }, []);
+
+  // Fetch live telemetry for selected city from backend API
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCityTelemetry = async () => {
+      setIsLoadingTelemetry(true);
+      try {
+        const res = await fetch(`${API_TELEMETRY_URL}/${selectedCity}`);
+        if (res.ok) {
+          const liveData = await res.json();
+          if (isMounted && liveData && liveData.city) {
+            setTelemetry((prev) => ({
+              ...prev,
+              [selectedCity]: liveData,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn(`Could not fetch live telemetry for ${selectedCity}:`, err);
+      } finally {
+        if (isMounted) setIsLoadingTelemetry(false);
+      }
+    };
+
+    fetchCityTelemetry();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCity]);
+
+  const currentMetric =
+    telemetry[selectedCity] ||
+    (cityMetrics.find((c) => c.city === selectedCity) ?? cityMetrics[0]);
 
   // Sync theme class to document root
   useEffect(() => {
@@ -164,19 +230,46 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }, 3500);
   };
 
-  const addReport = (
+  const addReport = async (
     newReportData: Omit<Report, 'id' | 'submittedAt' | 'status' | 'source'>,
   ) => {
-    const newReport: Report = {
+    const tempId = `rep-${Date.now().toString().slice(-4)}`;
+    const optimisticReport: Report = {
       ...newReportData,
-      id: `rep-${Date.now().toString().slice(-4)}`,
+      id: tempId,
       submittedAt: 'Just now',
       status: 'Pending Review',
       source: 'Citizen Mobile',
       upvotes: 1,
     };
 
-    setReports((prev) => [newReport, ...prev]);
+    setReports((prev) => [optimisticReport, ...prev]);
+
+    // Send to backend API
+    try {
+      const token = localStorage.getItem('biocanopy-token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(API_REPORTS_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(newReportData),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.report) {
+          setReports((prev) =>
+            prev.map((r) => (r.id === tempId ? data.report : r)),
+          );
+        }
+      }
+    } catch (err) {
+      console.warn('Backend server offline, saved report in local state:', err);
+    }
 
     // Also update authority priority queue for matching zone or add a new zone entry
     setAuthorityZones((prevZones) => {
@@ -217,16 +310,55 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     });
 
     showToast(
-      `Hazard reported: "${newReportData.category}" added to public map & priority queue.`,
+      `Hazard reported: "${newReportData.category}" saved to database & map.`,
       'success',
     );
   };
 
-  const updateReportStatus = (id: string, status: ReportStatus) => {
+  const upvoteReport = async (id: string) => {
+    // Optimistic UI update
+    setReports((prev) =>
+      prev.map((rep) =>
+        rep.id === id ? { ...rep, upvotes: (rep.upvotes || 0) + 1 } : rep,
+      ),
+    );
+
+    try {
+      await fetch(`${API_REPORTS_URL}/${id}/upvote`, {
+        method: 'PATCH',
+      });
+      showToast('Report upvoted! Priority boosted.', 'success');
+    } catch (err) {
+      console.warn('Failed to upvote on server:', err);
+    }
+  };
+
+  const deleteReport = async (id: string) => {
+    setReports((prev) => prev.filter((r) => r.id !== id));
+    try {
+      await fetch(`${API_REPORTS_URL}/${id}`, {
+        method: 'DELETE',
+      });
+      showToast('Report deleted from database.', 'info');
+    } catch (err) {
+      console.warn('Failed to delete on server:', err);
+    }
+  };
+
+  const updateReportStatus = async (id: string, status: ReportStatus) => {
     setReports((prev) =>
       prev.map((rep) => (rep.id === id ? { ...rep, status } : rep)),
     );
-    showToast(`Report status updated to "${status}".`, 'info');
+    try {
+      await fetch(`http://localhost:5000/api/admin/reports/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      showToast(`Report status updated to "${status}".`, 'info');
+    } catch (err) {
+      console.warn('Failed to update status on server:', err);
+    }
   };
 
   const dispatchPlantingTask = (zoneId: string) => {
@@ -265,6 +397,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => ({
       selectedCity,
       setSelectedCity,
+      currentMetric,
+      isLoadingTelemetry,
       activeTab,
       setActiveTab,
       language,
@@ -274,6 +408,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       toggleTheme,
       reports,
       addReport,
+      upvoteReport,
+      deleteReport,
       updateReportStatus,
       authorityZones,
       dispatchPlantingTask,
@@ -290,6 +426,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }),
     [
       selectedCity,
+      currentMetric,
+      isLoadingTelemetry,
       activeTab,
       language,
       theme,

@@ -5,6 +5,7 @@ import {
   Loader2,
   Lock,
   Mail,
+  ShieldCheck,
   Trees,
   User as UserIcon,
 } from 'lucide-react';
@@ -53,7 +54,11 @@ export function UserAuthPage() {
       } else {
         const res = await login({ email, password });
         if (res.success) {
-          navigate('/dashboard');
+          if (email.toLowerCase().includes('admin')) {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
         } else {
           setErrorMessage(res.message || 'Invalid email or password.');
         }
@@ -81,6 +86,26 @@ export function UserAuthPage() {
       }
     } catch {
       navigate('/dashboard');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAdminDemo = async () => {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      const res = await login({
+        email: 'admin@biocanopy.demo',
+        password: 'admin123',
+      });
+      if (res.success) {
+        navigate('/admin');
+      } else {
+        navigate('/admin');
+      }
+    } catch {
+      navigate('/admin');
     } finally {
       setIsSubmitting(false);
     }
@@ -226,7 +251,7 @@ export function UserAuthPage() {
           </form>
 
           {/* Quick Demo 1-Click Action */}
-          <div className="mt-5 border-t border-emerald-500/20 pt-4">
+          <div className="mt-5 space-y-2 border-t border-emerald-500/20 pt-4">
             <button
               type="button"
               onClick={handleQuickDemo}
@@ -235,6 +260,16 @@ export function UserAuthPage() {
             >
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
               <span>One-Click Demo as Citizen (Neha Resident)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAdminDemo}
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
+            >
+              <ShieldCheck className="h-4 w-4 text-cyan-400" />
+              <span>One-Click Demo as Admin (BioCanopy Team)</span>
             </button>
           </div>
         </div>
