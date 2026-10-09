@@ -143,8 +143,7 @@ export function AnimatedCanopyBackground() {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none gpu-layer"
-      style={{ contain: 'paint layout' }}
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
       aria-hidden="true"
     >
       {/* 1. Base Landscape Photo Layer */}
@@ -158,13 +157,13 @@ export function AnimatedCanopyBackground() {
       {/* 2. Glass Aesthetic Layer (Adapts dynamically between Dark & Light themes) */}
       {theme === 'dark' ? (
         /* Dark Theme: Rich obsidian & emerald glass glaze allowing mountains, sky glow, and foliage to shine through */
-        <div className="absolute inset-0 bg-gradient-to-b from-[#081412]/85 via-[#081412]/76 to-[#050D0C]/90 transition-colors duration-700">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#081412]/82 via-[#081412]/74 to-[#050D0C]/88 transition-colors duration-700 backdrop-blur-[0.5px]">
           {/* Subtle ambient cyan/emerald light rays */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-black/30" />
         </div>
       ) : (
         /* Light Theme: Radiant daylight glass glaze with clean frosted freshness */
-        <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45 transition-colors duration-700">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/22 to-white/42 transition-colors duration-700 backdrop-blur-[0.5px]">
           {/* Gentle sunbeam glow */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-200/15 via-emerald-100/10 to-transparent" />
         </div>
@@ -194,6 +193,11 @@ export function AnimatedCanopyBackground() {
               <stop offset="70%" stopColor="#34D399" stopOpacity="0.5" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.2" />
             </linearGradient>
+
+            <filter id="ribbonGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
           </defs>
 
           {/* Upper Graceful Glass Ribbon */}
@@ -202,6 +206,7 @@ export function AnimatedCanopyBackground() {
             stroke="url(#breezeGlass1)"
             strokeWidth="3.2"
             strokeLinecap="round"
+            filter="url(#ribbonGlow)"
             className="animate-breeze-pulse"
           />
 
@@ -211,6 +216,7 @@ export function AnimatedCanopyBackground() {
             stroke="url(#breezeGlass2)"
             strokeWidth="2.5"
             strokeLinecap="round"
+            filter="url(#ribbonGlow)"
             className="animate-breeze-pulse-delayed"
           />
 
@@ -221,6 +227,7 @@ export function AnimatedCanopyBackground() {
             strokeWidth="1.8"
             strokeDasharray="16 12"
             opacity="0.65"
+            filter="url(#ribbonGlow)"
           />
         </svg>
       </div>
@@ -228,18 +235,19 @@ export function AnimatedCanopyBackground() {
       {/* 4. Sparkling Light Glints / Stars along the Breeze Stream */}
       <SparkleStar size={20} className="top-[22%] left-[34%] animate-sparkle-1" />
       <SparkleStar size={16} className="top-[68%] left-[72%] animate-sparkle-2" />
-      <SparkleStar size={22} className="hidden sm:block top-[62%] left-[48%] animate-sparkle-3" />
-      <SparkleStar size={14} className="hidden sm:block top-[18%] left-[82%] animate-sparkle-1" />
+      <SparkleStar size={22} className="top-[62%] left-[48%] animate-sparkle-3" />
+      <SparkleStar size={14} className="top-[18%] left-[82%] animate-sparkle-1" />
 
       {/* 5. Translucent Floating Bubbles / Dewdrops */}
       <TranslucentBubble size={32} className="top-[28%] left-[12%] animate-bubble-float-1" />
       <TranslucentBubble size={24} className="top-[58%] left-[14%] animate-bubble-float-2" />
-      <TranslucentBubble size={30} className="hidden sm:block top-[41%] right-[9%] animate-bubble-float-3" />
-      <TranslucentBubble size={20} className="hidden sm:block top-[16%] right-[22%] animate-bubble-float-1" />
+      <TranslucentBubble size={30} className="top-[41%] right-[9%] animate-bubble-float-3" />
+      <TranslucentBubble size={20} className="top-[16%] right-[22%] animate-bubble-float-1" />
 
-      {/* 6. Animated Floating Green Leaves (Lightweight on mobile, full wave on desktop) */}
+      {/* 6. Animated Floating Green Leaves (Dancing in the Breeze across depths) */}
+      {/* Wave 1: Drifting from lower-left across the center */}
       <FloatingLeaf
-        size={28}
+        size={30}
         fillGradient="leafGrad1"
         className="animate-leaf-drift-1"
         style={{ animationDelay: '0s', animationDuration: '16s' }}
@@ -248,30 +256,32 @@ export function AnimatedCanopyBackground() {
         size={22}
         fillGradient="leafGrad2"
         className="animate-leaf-drift-2"
-        style={{ animationDelay: '4.5s', animationDuration: '18s' }}
+        style={{ animationDelay: '3.5s', animationDuration: '18s' }}
       />
       <FloatingLeaf
         size={34}
         fillGradient="leafGrad3"
-        className="hidden sm:block animate-leaf-drift-3"
+        className="animate-leaf-drift-3"
         style={{ animationDelay: '7s', animationDuration: '20s' }}
       />
+
+      {/* Wave 2: Staggered continuous drift */}
       <FloatingLeaf
         size={26}
         fillGradient="leafGrad1"
-        className="hidden sm:block animate-leaf-drift-1"
+        className="animate-leaf-drift-1"
         style={{ animationDelay: '9s', animationDuration: '17s' }}
       />
       <FloatingLeaf
         size={20}
         fillGradient="leafGrad2"
-        className="hidden sm:block animate-leaf-drift-2"
+        className="animate-leaf-drift-2"
         style={{ animationDelay: '12s', animationDuration: '19s' }}
       />
       <FloatingLeaf
         size={32}
         fillGradient="leafGrad3"
-        className="hidden sm:block animate-leaf-drift-3"
+        className="animate-leaf-drift-3"
         style={{ animationDelay: '15s', animationDuration: '22s' }}
       />
 

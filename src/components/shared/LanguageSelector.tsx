@@ -32,16 +32,13 @@ export function LanguageSelector({ className = '' }: { className?: string }) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 focus:outline-none"
+        className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 focus:outline-none"
         title="Select Language / भाषा चुनें"
       >
-        <Globe className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-        <span className="hidden sm:inline font-semibold">{currentLang.native}</span>
-        <span className="sm:hidden font-mono font-bold text-[11px] text-emerald-200">
-          {currentLang.code.toUpperCase()}
-        </span>
+        <Globe className="h-3.5 w-3.5 text-emerald-400" />
+        <span className="font-semibold">{currentLang.native}</span>
         <ChevronDown
-          className={`h-3.5 w-3.5 text-[#94BDB2] transition-transform duration-200 shrink-0 ${
+          className={`h-3.5 w-3.5 text-[#94BDB2] transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />

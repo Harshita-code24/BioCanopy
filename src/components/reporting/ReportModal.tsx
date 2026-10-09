@@ -152,17 +152,17 @@ export function ReportModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-2.5 sm:p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 bg-[#14532D] px-4 sm:px-6 py-3.5 sm:py-4 text-white">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-700/60 text-emerald-300 shrink-0">
-              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
+        <div className="flex items-center justify-between border-b border-gray-100 bg-[#14532D] px-6 py-4 text-white">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-700/60 text-emerald-300">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold">Report Environmental Hazard</h3>
-              <p className="text-[11px] sm:text-xs text-emerald-200 line-clamp-1">
+              <h3 className="text-base font-bold">Report Environmental Hazard</h3>
+              <p className="text-xs text-emerald-200">
                 Logged to the BioCanopy Public Map & Municipal Action Queue
               </p>
             </div>
@@ -177,13 +177,13 @@ export function ReportModal() {
         </div>
 
         {/* Modal Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Field 1: Category Selector */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
               1. Select Hazard Category <span className="text-red-500">*</span>
             </label>
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:gap-2.5 sm:grid-cols-2">
+            <div className="mt-2 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {categories.map((cat) => {
                 const Icon = cat.icon;
                 const isSelected = category === cat.id;
@@ -192,7 +192,7 @@ export function ReportModal() {
                     type="button"
                     key={cat.id}
                     onClick={() => setCategory(cat.id)}
-                    className={`flex items-start gap-2.5 sm:gap-3 rounded-xl border p-2.5 sm:p-3 text-left transition active:scale-[0.98] ${
+                    className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
                       isSelected
                         ? `${cat.color} ring-2 ring-emerald-600`
                         : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700'
@@ -213,7 +213,7 @@ export function ReportModal() {
 
           {/* Field 2: Location Name & GPS Pin Preview */}
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-1">
+            <div className="flex items-center justify-between">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                 2. Location & GPS Pin Preview <span className="text-red-500">*</span>
               </label>
@@ -222,7 +222,7 @@ export function ReportModal() {
                 type="button"
                 onClick={handleUseCurrentLocation}
                 disabled={isGpsLocating}
-                className="flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 active:scale-95"
+                className="flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800"
               >
                 <Crosshair className={`h-3.5 w-3.5 ${isGpsLocating ? 'animate-spin' : ''}`} />
                 <span>{isGpsLocating ? 'Acquiring GPS...' : 'Use Current GPS Location'}</span>
@@ -239,13 +239,11 @@ export function ReportModal() {
             />
 
             {/* Mini Map GPS Pin Preview */}
-            <div className="relative h-36 sm:h-44 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+            <div className="relative h-44 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
               <MapContainer
                 center={coords}
                 zoom={14}
                 scrollWheelZoom={false}
-                // @ts-expect-error Leaflet mobile tap option disables legacy simulated 300ms touch delay
-                tap={false}
                 className="h-full w-full"
               >
                 <TileLayer
@@ -266,14 +264,14 @@ export function ReportModal() {
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
               3. Image Upload Dropzone (Photo Verification)
             </label>
-            <div className="mt-2 relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/70 px-3 py-3.5 sm:px-4 sm:py-5 text-center transition hover:border-emerald-500 hover:bg-emerald-50/30">
+            <div className="mt-2 relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/70 px-4 py-5 text-center transition hover:border-emerald-500 hover:bg-emerald-50/30">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoSelect}
                 className="absolute inset-0 cursor-pointer opacity-0"
               />
-              <UploadCloud className="h-7 w-7 sm:h-8 sm:w-8 text-gray-400" />
+              <UploadCloud className="h-8 w-8 text-gray-400" />
               <p className="mt-1 text-xs font-semibold text-gray-700">
                 {uploadedPhotoName ? (
                   <span className="text-emerald-700 font-bold">
@@ -281,12 +279,12 @@ export function ReportModal() {
                   </span>
                 ) : (
                   <>
-                    <span className="text-emerald-700">Click to upload photo</span> or drag proof
+                    <span className="text-emerald-700">Click to upload photo</span> or drag & drop proof
                   </>
                 )}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-0.5">
-                PNG, JPG or WEBP (Max 5MB) · Geotag metadata extracted
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                PNG, JPG or WEBP (Max 5MB) · Geotag metadata extracted automatically
               </p>
             </div>
           </div>
@@ -301,23 +299,23 @@ export function ReportModal() {
               placeholder="Describe the severity: e.g. metal benches too hot to sit, visible black smoke, or zero shade trees for 300m..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-gray-300 bg-white p-2.5 sm:p-3 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+              className="mt-1.5 w-full rounded-xl border border-gray-300 bg-white p-3 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             />
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3 border-t border-gray-100 pt-3.5 sm:pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
             <button
               type="button"
               onClick={() => setIsReportModalOpen(false)}
-              className="w-full sm:w-auto rounded-xl border border-gray-300 py-2.5 sm:px-4 text-xs font-semibold text-gray-700 hover:bg-gray-50 active:scale-95"
+              className="rounded-xl border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#14532D] py-3 sm:px-6 sm:py-2.5 text-xs font-bold text-white shadow-md shadow-green-900/20 transition hover:bg-[#166534] active:scale-95"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#14532D] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-green-900/20 transition hover:bg-[#166534] active:scale-95"
             >
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
               <span>Submit to Public Map</span>
