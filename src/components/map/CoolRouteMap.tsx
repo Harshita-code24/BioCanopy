@@ -191,6 +191,8 @@ export function CoolRouteMap() {
           center={cityCenter}
           zoom={14}
           scrollWheelZoom={true}
+          // @ts-expect-error Leaflet mobile tap option disables legacy simulated 300ms touch delay
+          tap={false}
           className="h-full w-full"
         >
           <MapRecenter center={cityCenter} />

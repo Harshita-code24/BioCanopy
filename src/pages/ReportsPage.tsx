@@ -112,6 +112,8 @@ export function ReportsPage() {
               center={cityCoords}
               zoom={13}
               scrollWheelZoom={true}
+              // @ts-expect-error Leaflet mobile tap option disables legacy simulated 300ms touch delay
+              tap={false}
               className="h-full w-full"
             >
               <TileLayer

@@ -24,9 +24,21 @@ body {
     radial-gradient(circle at 15% 15%, rgba(45, 212, 191, 0.08), transparent 35%),
     radial-gradient(circle at 85% 10%, rgba(74, 222, 128, 0.06), transparent 30%),
     linear-gradient(180deg, #081412 0%, #050D0C 100%);
-  background-attachment: fixed;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure buttons and touch targets respond with zero latency */
+button, a, input, select, textarea {
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Isolate GPU compositing layer for animations to prevent touch jank */
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Hide scrollbar while preserving scroll functionality for horizontal tabs/pills */
@@ -264,6 +276,30 @@ html.light .bg-\[\#0A1B17\] {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(16, 185, 129, 0.2) !important;
 }
 
+/* Mobile GPU optimization: reduce blur radius to 6px on small screens to eliminate touch lag */
+@media (max-width: 768px) {
+  html.dark .bg-\[\#0F2420\],
+  html.dark .bg-\[\#0F2420\]\/90,
+  html.dark .bg-\[\#0F2420\]\/80,
+  html.dark .bg-\[\#0F2420\]\/70,
+  html.dark .bg-\[\#0A1B17\] {
+    background-color: rgba(11, 26, 23, 0.92) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+
+  html.light .bg-\[\#0F2420\],
+  html.light .bg-\[\#0F2420\]\/90,
+  html.light .bg-\[\#0F2420\]\/80,
+  html.light .bg-\[\#0F2420\]\/70,
+  html.light .bg-\[\#0E231F\]\/95,
+  html.light .bg-\[\#0A1B17\] {
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+}
+
 /* =========================================================================
    ANIMATED CANOPY BREEZE, LEAVES & SPARKLES KEYFRAMES
    ========================================================================= */
@@ -448,3 +484,24 @@ html.light .bg-\[\#0A1B17\] {
 .animate-corner-leaf-delayed {
   animation: cornerLeafSway 7.5s ease-in-out infinite 2.5s;
 }
+
+/* =========================================================================
+   MOBILE TOUCH & GPU PERFORMANCE OPTIMIZATIONS
+   ========================================================================= */
+@media (max-width: 768px) {
+  /* Reduce heavy blurs that choke mobile GPU fillrate during touch scrolls */
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    -webkit-backdrop-filter: blur(6px) !important;
+    backdrop-filter: blur(6px) !important;
+  }
+
+  /* Optimize will-change compositing for mobile viewports */
+  .gpu-layer {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+}
+
