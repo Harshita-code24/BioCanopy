@@ -21,7 +21,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { cityMetrics, translations } from '../data/mockData';
+import { cityMetrics } from '../data/mockData';
+import { useTranslation } from '../i18n/useTranslation';
 import { useAppState } from '../store/AppStateContext';
 import type { Language } from '../types';
 
@@ -48,6 +49,7 @@ function GlowingGaugeCard({
   description,
   provenance,
   provenanceIcon: ProvenanceIcon,
+  scaleLabel,
 }: {
   label: string;
   value: number;
@@ -58,6 +60,7 @@ function GlowingGaugeCard({
   description: string;
   provenance: string;
   provenanceIcon: any;
+  scaleLabel?: string;
 }) {
   const percentage = Math.min(Math.max(value / max, 0), 1);
   const strokeDashoffset = 251.2 * (1 - percentage);
@@ -157,7 +160,7 @@ function GlowingGaugeCard({
 
           <div className="absolute bottom-1 flex flex-col items-center">
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/60">
-              3-Band Simplified Scale
+              {scaleLabel || '3-Band Simplified Scale'}
             </span>
           </div>
         </div>
@@ -178,8 +181,9 @@ function GlowingGaugeCard({
 }
 
 export function OpenDataPage() {
-  const { selectedCity, language, setLanguage } = useAppState();
-  const copy = translations[language];
+  const { selectedCity, setLanguage } = useAppState();
+  const { t, language } = useTranslation();
+  const copy = t.openData;
 
   const city = useMemo(
     () => cityMetrics.find((c) => c.city === selectedCity) ?? cityMetrics[0],
@@ -211,11 +215,11 @@ export function OpenDataPage() {
           </div>
           <div>
             <h1 className="text-xl font-black text-white sm:text-2xl">
-              {copy.navDashboard} · {city.city}
+              {copy.title} · {city.city}
             </h1>
             <div className="flex items-center gap-2 text-xs text-[#94BDB2]">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>CPCB Live Stream</span>
+              <span>{copy.refreshedLive}</span>
               <span>·</span>
               <span className="text-emerald-400 font-medium">{city.lastUpdated}</span>
             </div>
@@ -246,47 +250,88 @@ export function OpenDataPage() {
       {/* 3 Glowing Gauges: Heat, AQI, Canopy */}
       <div className="grid gap-6 md:grid-cols-3">
         <GlowingGaugeCard
-          label={copy.heatIndexLabel}
+          label={copy.heatIndex}
           value={city.temperature}
           unit="°C"
           max={50}
           band={heatBand}
-          statusLabel={heatBand === 'red' ? 'Extreme Heat' : heatBand === 'amber' ? 'Moderate' : 'Optimal'}
+          statusLabel={
+            heatBand === 'red'
+              ? copy.dangerous
+              : heatBand === 'amber'
+                ? copy.moderate
+                : (language === 'hi' ? 'अनुकूल' : language === 'mr' ? 'अनुकूल' : 'Optimal')
+          }
           description={
             heatBand === 'red'
-              ? 'Extreme surface heat detected. Asphalt roads radiating high radiant energy. Use shaded corridors.'
-              : 'Thermal conditions are manageable. Stay hydrated with regular shade breaks.'
+              ? (language === 'hi'
+                  ? 'अत्यधिक सतह गर्मी दर्ज की गई। डामर की सड़कें उच्च विकिरण छोड़ रही हैं। छायादार रास्तों का उपयोग करें।'
+                  : language === 'mr'
+                    ? 'अति तीव्र उष्णता नोंदवली गेली. डांबरी रस्ते उष्णता उत्सर्जित करत आहेत. सावलीच्या मार्गांचा वापर करा.'
+                    : 'Extreme surface heat detected. Asphalt roads radiating high radiant energy. Use shaded corridors.')
+              : (language === 'hi'
+                  ? 'गर्मी की स्थिति सामान्य है। पर्याप्त पानी पिएं और छाया में विश्राम करें।'
+                  : language === 'mr'
+                    ? 'उष्णतेची स्थिती मध्यम आहे. पुरेसे पाणी प्या आणि सावलीत विश्रांती घ्या.'
+                    : 'Thermal conditions are manageable. Stay hydrated with regular shade breaks.')
           }
-          provenance={city.imdStation}
+          provenance={city.imdStation || copy.provenanceImd}
           provenanceIcon={Sun}
+          scaleLabel={language === 'hi' ? '3-स्तरीय सरलीकृत पैमाना' : language === 'mr' ? '३-स्तरीय सोपी श्रेणी' : '3-Band Simplified Scale'}
         />
 
         <GlowingGaugeCard
-          label={copy.aqiLabel}
+          label={copy.aqi}
           value={city.aqi}
           unit="AQI"
           max={300}
           band={aqiBand}
-          statusLabel={aqiBand === 'red' ? 'Poor Air' : aqiBand === 'amber' ? 'Moderate' : 'Good'}
+          statusLabel={
+            aqiBand === 'red'
+              ? copy.severe
+              : aqiBand === 'amber'
+                ? copy.moderate
+                : (language === 'hi' ? 'अच्छा' : language === 'mr' ? 'चांगली' : 'Good')
+          }
           description={
             aqiBand === 'red'
-              ? 'Unhealthy particulate concentration. Inversion trapping road dust. Prefer tree-lined routes.'
-              : 'Satisfactory air quality. Clean airflow across urban green corridors.'
+              ? (language === 'hi'
+                  ? 'अस्वस्थ कण सांद्रता। धूल और प्रदूषण फंसा हुआ है। वृक्षारोपित मार्गों को प्राथमिकता दें।'
+                  : language === 'mr'
+                    ? 'प्रदूषणाची पातळी अस्वास्थ्यकर आहे. रस्त्यावरील धूळ साचली आहे. झाडे असलेल्या मार्गांना प्राधान्य द्या.'
+                    : 'Unhealthy particulate concentration. Inversion trapping road dust. Prefer tree-lined routes.')
+              : (language === 'hi'
+                  ? 'हवा की गुणवत्ता संतोषजनक है। हरित गलियारों में स्वच्छ वायु प्रवाह।'
+                  : language === 'mr'
+                    ? 'हवेची गुणवत्ता समाधानकारक आहे. हरित पट्ट्यांमध्ये शुद्ध हवा.'
+                    : 'Satisfactory air quality. Clean airflow across urban green corridors.')
           }
-          provenance={city.cpcbStation}
+          provenance={city.cpcbStation || copy.provenanceCpcb}
           provenanceIcon={Wind}
+          scaleLabel={language === 'hi' ? '3-स्तरीय सरलीकृत पैमाना' : language === 'mr' ? '३-स्तरीय सोपी श्रेणी' : '3-Band Simplified Scale'}
         />
 
         <GlowingGaugeCard
-          label={copy.canopyLabel}
+          label={copy.canopyDensity}
           value={city.treeCover}
           unit="%"
           max={50}
           band={canopyBand}
-          statusLabel={canopyBand === 'red' ? 'Canopy Deficit' : 'Healthy Canopy'}
-          description={`Urban canopy density is ${city.treeCover}%, leaving a -${city.targetCanopy - city.treeCover}% deficit below the national municipal greening target.`}
+          statusLabel={
+            canopyBand === 'red'
+              ? copy.criticalShortfall
+              : (language === 'hi' ? 'स्वस्थ हरित आवरण' : language === 'mr' ? 'निरोगी हरित आच्छादन' : 'Healthy Canopy')
+          }
+          description={
+            language === 'hi'
+              ? `शहरी वृक्ष आवरण घनता ${city.treeCover}% है, जो राष्ट्रीय नगरपालिका हरित लक्ष्य (33%) से ${city.targetCanopy - city.treeCover}% कम है।`
+              : language === 'mr'
+                ? `शहरी झाडांचे प्रमाण ${city.treeCover}% आहे, जे राष्ट्रीय महापालिका उद्दिष्टापेक्षा (33%) ${city.targetCanopy - city.treeCover}% कमी आहे.`
+                : `Urban canopy density is ${city.treeCover}%, leaving a -${city.targetCanopy - city.treeCover}% deficit below the national municipal greening target.`
+          }
           provenance={copy.provenanceSatellite}
           provenanceIcon={Satellite}
+          scaleLabel={language === 'hi' ? '3-स्तरीय सरलीकृत पैमाना' : language === 'mr' ? '३-स्तरीय सोपी श्रेणी' : '3-Band Simplified Scale'}
         />
       </div>
 
@@ -297,15 +342,15 @@ export function OpenDataPage() {
             <Clock className="h-5 w-5 text-emerald-400" />
             <div>
               <h3 className="text-base font-bold text-white">
-                24-Hour Diurnal Heat & Smog Forecast Curve
+                {copy.diurnalTitle}
               </h3>
               <p className="text-xs text-[#94BDB2]">
-                Hourly surface heat peak from 12 PM to 5 PM mapped against particulate AQI
+                {copy.diurnalDesc}
               </p>
             </div>
           </div>
           <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
-            Ground Sensors + Satellites
+            {language === 'hi' ? 'भू-सेंसर + उपग्रह' : language === 'mr' ? 'जमिनीवरील सेन्सर्स + उपग्रह' : 'Ground Sensors + Satellites'}
           </span>
         </div>
 
@@ -337,7 +382,7 @@ export function OpenDataPage() {
               <Area
                 type="monotone"
                 dataKey="temp"
-                name="Temperature (°C)"
+                name={copy.tempAxis}
                 stroke="#EF4444"
                 strokeWidth={2.5}
                 fillOpacity={1}
@@ -346,7 +391,7 @@ export function OpenDataPage() {
               <Area
                 type="monotone"
                 dataKey="aqi"
-                name="AQI Index"
+                name={copy.aqiAxis}
                 stroke="#10B981"
                 strokeWidth={2.5}
                 fillOpacity={1}

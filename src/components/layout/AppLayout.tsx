@@ -23,9 +23,12 @@ import { AnimatedCanopyBackground } from '../shared/AnimatedCanopyBackground';
 import { LanguageSelector } from '../shared/LanguageSelector';
 import { ThemeToggle } from '../shared/ThemeToggle';
 
+import { useTranslation } from '../../i18n/useTranslation';
+
 export function AppLayout() {
   const { user, logout } = useAuth();
-  const { selectedCity, setSelectedCity, setIsReportModalOpen, language } = useAppState();
+  const { selectedCity, setSelectedCity, setIsReportModalOpen } = useAppState();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,89 +51,23 @@ export function AppLayout() {
     navigate('/login');
   };
 
-  // Localized navigation titles for English, Hindi, and Marathi (Citizen Solutions)
-  const localizedNav = {
-    en: [
-      { to: '/dashboard', label: 'Overview Dashboard', num: '00', icon: LayoutDashboard, badge: 'Hub' },
-      { to: '/map', label: 'Cool-Route Map', num: '01', icon: Navigation, badge: 'Shaded 82%' },
-      { to: '/open-data', label: 'Open Data Dashboard', num: '02', icon: BarChart3, badge: '3-Band Scale' },
-      { to: '/reports', label: 'Citizen Reporting', num: '03', icon: AlertTriangle, badge: 'Crowdsourced' },
-      { to: '/advisor', label: 'AI Safety Advisor', num: '04', icon: Sparkles, badge: 'Live Guidance' },
-    ],
-    hi: [
-      { to: '/dashboard', label: 'अवलोकन डैशबोर्ड', num: '00', icon: LayoutDashboard, badge: 'मुख्य हब' },
-      { to: '/map', label: 'शीतल मार्ग नक्शा', num: '01', icon: Navigation, badge: '८२% छायादार' },
-      { to: '/open-data', label: 'ओपन डेटा डैशबोर्ड', num: '02', icon: BarChart3, badge: '३-स्तरीय पैमाना' },
-      { to: '/reports', label: 'नागरिक रिपोर्टिंग', num: '03', icon: AlertTriangle, badge: 'नागरिक सहभाग' },
-      { to: '/advisor', label: 'एआई सुरक्षा सलाहकार', num: '04', icon: Sparkles, badge: 'रीयल-टाइम सलाह' },
-    ],
-    mr: [
-      { to: '/dashboard', label: 'आढावा डॅशबोर्ड', num: '00', icon: LayoutDashboard, badge: 'मुख्य केंद्र' },
-      { to: '/map', label: 'शीतल मार्ग नकाशा', num: '01', icon: Navigation, badge: '८२% सावलीयुक्त' },
-      { to: '/open-data', label: 'ओपन डेटा डॅशबोर्ड', num: '02', icon: BarChart3, badge: '३-स्तरीय मोजपट्टी' },
-      { to: '/reports', label: 'नागरिक तक्रार नोंदणी', num: '03', icon: AlertTriangle, badge: 'लोकसहभाग' },
-      { to: '/advisor', label: 'एआय सुरक्षा सल्लागार', num: '04', icon: Sparkles, badge: 'थेट मार्गदर्शन' },
-    ],
-  };
+  const baseNavLinks = [
+    { to: '/dashboard', label: t.nav.overview, num: '00', icon: LayoutDashboard, badge: t.nav.overviewBadge },
+    { to: '/map', label: t.nav.coolRoute, num: '01', icon: Navigation, badge: t.nav.coolRouteBadge },
+    { to: '/open-data', label: t.nav.openData, num: '02', icon: BarChart3, badge: t.nav.openDataBadge },
+    { to: '/reports', label: t.nav.citizenReporting, num: '03', icon: AlertTriangle, badge: t.nav.citizenReportingBadge },
+    { to: '/advisor', label: t.nav.aiAdvisor, num: '04', icon: Sparkles, badge: t.nav.aiAdvisorBadge },
+  ];
 
-  const baseNavLinks = localizedNav[language] || localizedNav.en;
   const adminItem = {
     to: '/admin',
-    label:
-      language === 'hi'
-        ? 'प्राधिकरण कमांड'
-        : language === 'mr'
-        ? 'प्रशासन नियंत्रण'
-        : 'Authority Command',
+    label: t.nav.adminCommand,
     num: '05',
     icon: ShieldCheck,
-    badge: 'Admin',
+    badge: t.nav.adminCommandBadge,
   };
 
-  const navLinks =
-    user?.role === 'admin' ? [...baseNavLinks, adminItem] : baseNavLinks;
-
-  const uiCopy = {
-    en: {
-      menu: 'Menu',
-      rollUp: 'Roll Up',
-      reportHazard: 'Report Hazard',
-      canopyMenu: 'Canopy Menu',
-      tagline: 'Air quality and heat',
-      selectModule: 'Select a module to navigate',
-      rollUpCanopy: 'Roll up canopy',
-      logOut: 'Log Out',
-    },
-    hi: {
-      menu: 'मेन्यू',
-      rollUp: 'समेटें',
-      reportHazard: 'खतरे की सूचना',
-      canopyMenu: 'कैनोपी मेन्यू',
-      tagline: 'Air quality and heat',
-      selectModule: 'नेविगेट करने के लिए मॉड्यूल चुनें',
-      rollUpCanopy: 'कैनोपी समेटें',
-      logOut: 'लॉग आउट',
-    },
-    mr: {
-      menu: 'मेनू',
-      rollUp: 'बंद करा',
-      reportHazard: 'धोक्याची नोंद',
-      canopyMenu: 'कॅनॉपी मेनू',
-      tagline: 'Air quality and heat',
-      selectModule: 'नेव्हिगेट करण्यासाठी विभाग निवडा',
-      rollUpCanopy: 'कॅनॉपी बंद करा',
-      logOut: 'लॉग आउट',
-    },
-  }[language] || {
-    menu: 'Menu',
-    rollUp: 'Roll Up',
-    reportHazard: 'Report Hazard',
-    canopyMenu: 'Canopy Menu',
-    tagline: 'Air quality and heat',
-    selectModule: 'Select a module to navigate',
-    rollUpCanopy: 'Roll up canopy',
-    logOut: 'Log Out',
-  };
+  const navLinks = user?.role === 'admin' ? [...baseNavLinks, adminItem] : baseNavLinks;
 
   return (
     <div className="relative min-h-screen text-[#ECFDF5] flex flex-col antialiased transition-colors duration-200 overflow-x-hidden">
@@ -144,7 +81,7 @@ export function AppLayout() {
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400 hover:bg-emerald-500/10 shadow-sm group"
-            title={isSidebarOpen ? 'Roll up canopy menu' : 'Roll down canopy menu'}
+            title={isSidebarOpen ? t.nav.rollUpCanopy : t.nav.canopyMenu}
           >
             <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition">
               {isSidebarOpen ? (
@@ -154,7 +91,7 @@ export function AppLayout() {
               )}
             </div>
             <span className="font-semibold text-white tracking-wide text-xs">
-              {isSidebarOpen ? uiCopy.rollUp : uiCopy.menu}
+              {isSidebarOpen ? t.nav.rollUp : t.nav.menu}
             </span>
           </button>
 
@@ -207,7 +144,7 @@ export function AppLayout() {
 
         {/* Right side controls: Theme Toggle, Language Selector, User, Hazard Report */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Theme Toggle Button (Grey Cloud Lightning for Dark, White Cloud Sun for Light) */}
+          {/* Theme Toggle Button */}
           <ThemeToggle />
 
           {/* Language Selector Dropdown (Hindi, Marathi, English) */}
@@ -216,7 +153,7 @@ export function AppLayout() {
           {/* User Profile Pill */}
           <div className="hidden md:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
             <User className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-medium text-white max-w-[90px] truncate">{user?.name || 'User'}</span>
+            <span className="font-medium text-white max-w-[90px] truncate">{user?.name || t.common.citizen}</span>
           </div>
 
           {/* Quick Action: Report Hazard */}
@@ -225,7 +162,7 @@ export function AppLayout() {
             className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/30 shadow-sm"
           >
             <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-            <span className="hidden sm:inline">{uiCopy.reportHazard}</span>
+            <span className="hidden sm:inline">{t.nav.reportHazard}</span>
           </button>
         </div>
       </header>
@@ -258,7 +195,7 @@ export function AppLayout() {
               className="fixed inset-x-0 top-[57px] z-[999] max-h-[calc(100vh-57px)] overflow-y-auto border-b-2 border-emerald-500/40 bg-[#0A1B17]/92 shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(16,185,129,0.12)] backdrop-blur-2xl"
             >
               <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-7">
-                {/* Curtain Header */}
+                {/* Curtain Header - cleanly formatted without duplicate user & roll-up pills */}
                 <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
@@ -270,39 +207,20 @@ export function AppLayout() {
                           Bio<span className="text-emerald-400">Canopy</span>
                         </span>
                         <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
-                          {uiCopy.canopyMenu}
+                          {t.nav.canopyMenu}
                         </span>
                       </div>
                       <p className="text-xs font-semibold text-[#94BDB2]">
-                        {uiCopy.tagline}
+                        {t.common.tagline}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    {/* User Profile Pill in Curtain */}
-                    <div className="hidden sm:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
-                      <User className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="font-bold text-white">{user?.name || 'User'}</span>
-                      <span className="text-[10px] uppercase text-emerald-400 font-semibold">(Citizen)</span>
-                    </div>
-
-                    {/* Roll Up Button */}
-                    <button
-                      onClick={() => setIsSidebarOpen(false)}
-                      className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 hover:text-white transition shadow-sm"
-                      title="Roll Up Menu"
-                    >
-                      <ChevronUp className="h-4 w-4" />
-                      <span>{uiCopy.rollUp}</span>
-                    </button>
                   </div>
                 </div>
 
                 {/* Modules Grid inside Curtain */}
                 <div className="mt-5">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#94BDB2]/70 mb-3 px-1">
-                    {uiCopy.selectModule}
+                    {t.nav.selectModule}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {navLinks.map(({ to, label, num, icon: Icon, badge }) => (
@@ -335,25 +253,14 @@ export function AppLayout() {
                   </div>
                 </div>
 
-                {/* Bottom Row Actions */}
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-emerald-500/20 pt-4">
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false);
-                      setIsReportModalOpen(true);
-                    }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition"
-                  >
-                    <AlertTriangle className="h-4 w-4 text-amber-400" />
-                    <span>{uiCopy.reportHazard}</span>
-                  </button>
-
+                {/* Bottom Row Actions - cleanly formatted without duplicate Report Hazard button */}
+                <div className="mt-5 flex items-center justify-end border-t border-emerald-500/20 pt-4">
                   <button
                     onClick={handleLogout}
                     className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 transition"
                   >
                     <LogOut className="h-3.5 w-3.5" />
-                    <span>{uiCopy.logOut}</span>
+                    <span>{t.nav.logOut}</span>
                   </button>
                 </div>
 
@@ -365,7 +272,7 @@ export function AppLayout() {
                   >
                     <div className="h-1.5 w-16 rounded-full bg-emerald-500/40 group-hover:w-24 group-hover:bg-emerald-400 transition-all duration-300" />
                     <span className="flex items-center gap-1 opacity-75 group-hover:opacity-100">
-                      <ChevronUp className="h-3 w-3" /> {uiCopy.rollUpCanopy}
+                      <ChevronUp className="h-3 w-3" /> {t.nav.rollUpCanopy}
                     </span>
                   </button>
                 </div>

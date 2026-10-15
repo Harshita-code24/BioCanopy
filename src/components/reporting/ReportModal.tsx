@@ -15,6 +15,7 @@ import {
 import { useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import { cityCoordinates } from '../../data/mockData';
+import { useTranslation } from '../../i18n/useTranslation';
 import { useAppState } from '../../store/AppStateContext';
 import type { HazardCategory } from '../../types';
 
@@ -50,6 +51,7 @@ function LocationPicker({
 export function ReportModal() {
   const { isReportModalOpen, setIsReportModalOpen, addReport, selectedCity } =
     useAppState();
+  const { t } = useTranslation();
 
   const defaultCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
 
@@ -75,29 +77,29 @@ export function ReportModal() {
     {
       id: 'Unshaded Hotspot',
       icon: AlertTriangle,
-      label: 'Unshaded Hotspot',
-      description: 'Extreme pavement heat, unshaded waiting stops & bridges',
+      label: t.reportModal.catUnshadedTitle,
+      description: t.reportModal.catUnshadedDesc,
       color: 'border-red-500 bg-red-50 text-red-900',
     },
     {
       id: 'Illegal Burning',
       icon: Flame,
-      label: 'Illegal Burning',
-      description: 'Commercial waste, plastic or dry leaves burning nearby',
+      label: t.reportModal.catBurningTitle,
+      description: t.reportModal.catBurningDesc,
       color: 'border-amber-500 bg-amber-50 text-amber-900',
     },
     {
       id: 'Construction Dust',
       icon: Wind,
-      label: 'Construction Dust',
-      description: 'Fugitive PM10 dust plumes from building or road works',
+      label: t.reportModal.catDustTitle,
+      description: t.reportModal.catDustDesc,
       color: 'border-blue-500 bg-blue-50 text-blue-900',
     },
     {
       id: 'No Tree Cover',
       icon: Trees,
-      label: 'No Tree Cover',
-      description: 'Barren sidewalk needing urgent municipal sapling planting',
+      label: t.reportModal.catNoTreeTitle,
+      description: t.reportModal.catNoTreeDesc,
       color: 'border-emerald-500 bg-emerald-50 text-emerald-900',
     },
   ];
@@ -161,9 +163,9 @@ export function ReportModal() {
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold">Report Environmental Hazard</h3>
+              <h3 className="text-base font-bold">{t.reportModal.modalTitle}</h3>
               <p className="text-xs text-emerald-200">
-                Logged to the BioCanopy Public Map & Municipal Action Queue
+                {t.reportModal.modalSubtitle}
               </p>
             </div>
           </div>
@@ -181,7 +183,7 @@ export function ReportModal() {
           {/* Field 1: Category Selector */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-              1. Select Hazard Category <span className="text-red-500">*</span>
+              {t.reportModal.step1Title} <span className="text-red-500">*</span>
             </label>
             <div className="mt-2 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {categories.map((cat) => {
@@ -215,7 +217,7 @@ export function ReportModal() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                2. Location & GPS Pin Preview <span className="text-red-500">*</span>
+                {t.reportModal.step2Title} <span className="text-red-500">*</span>
               </label>
 
               <button
@@ -225,14 +227,14 @@ export function ReportModal() {
                 className="flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800"
               >
                 <Crosshair className={`h-3.5 w-3.5 ${isGpsLocating ? 'animate-spin' : ''}`} />
-                <span>{isGpsLocating ? 'Acquiring GPS...' : 'Use Current GPS Location'}</span>
+                <span>{isGpsLocating ? t.reportModal.acquiringGps : t.reportModal.useCurrentGps}</span>
               </button>
             </div>
 
             <input
               type="text"
               required
-              placeholder={`e.g. Near ${selectedCity} Station Exit / Bus Stop`}
+              placeholder={`${t.reportModal.locationPlaceholder} (${selectedCity})`}
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
               className="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
@@ -254,7 +256,7 @@ export function ReportModal() {
               </MapContainer>
 
               <div className="pointer-events-none absolute bottom-2 left-2 z-[400] rounded-lg bg-white/90 px-2 py-1 text-[10px] font-semibold text-gray-700 shadow-xs backdrop-blur-xs">
-                📍 Tap map to reposition pin: {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
+                {t.reportModal.tapRepositionPin} {coords[0].toFixed(4)}, {coords[1].toFixed(4)}
               </div>
             </div>
           </div>
@@ -262,7 +264,7 @@ export function ReportModal() {
           {/* Field 3: Image Upload Dropzone */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-              3. Image Upload Dropzone (Photo Verification)
+              {t.reportModal.step3Title}
             </label>
             <div className="mt-2 relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/70 px-4 py-5 text-center transition hover:border-emerald-500 hover:bg-emerald-50/30">
               <input
@@ -275,16 +277,14 @@ export function ReportModal() {
               <p className="mt-1 text-xs font-semibold text-gray-700">
                 {uploadedPhotoName ? (
                   <span className="text-emerald-700 font-bold">
-                    ✓ Attached: {uploadedPhotoName}
+                    {t.reportModal.photoAttached} {uploadedPhotoName}
                   </span>
                 ) : (
-                  <>
-                    <span className="text-emerald-700">Click to upload photo</span> or drag & drop proof
-                  </>
+                  <span>{t.reportModal.photoClickOrDrag}</span>
                 )}
               </p>
               <p className="text-[11px] text-gray-500 mt-0.5">
-                PNG, JPG or WEBP (Max 5MB) · Geotag metadata extracted automatically
+                {t.reportModal.photoMetadataNote}
               </p>
             </div>
           </div>
@@ -292,11 +292,11 @@ export function ReportModal() {
           {/* Field 4: Description / Notes */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-              4. Additional Notes / Ground Observations
+              {t.reportModal.step4Title}
             </label>
             <textarea
               rows={2}
-              placeholder="Describe the severity: e.g. metal benches too hot to sit, visible black smoke, or zero shade trees for 300m..."
+              placeholder={t.reportModal.notesPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1.5 w-full rounded-xl border border-gray-300 bg-white p-3 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
@@ -310,7 +310,7 @@ export function ReportModal() {
               onClick={() => setIsReportModalOpen(false)}
               className="rounded-xl border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
             >
-              Cancel
+              {t.reportModal.cancelBtn}
             </button>
 
             <button
@@ -318,7 +318,7 @@ export function ReportModal() {
               className="inline-flex items-center gap-2 rounded-xl bg-[#14532D] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-green-900/20 transition hover:bg-[#166534] active:scale-95"
             >
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>Submit to Public Map</span>
+              <span>{t.reportModal.submitBtn}</span>
             </button>
           </div>
         </form>

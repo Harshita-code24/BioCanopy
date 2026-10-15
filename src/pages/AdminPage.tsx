@@ -18,6 +18,7 @@ import {
   Wind,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '../i18n/useTranslation';
 import { useAppState } from '../store/AppStateContext';
 import { useAuth } from '../store/AuthContext';
 import type { HazardCategory, ReportStatus } from '../types';
@@ -50,6 +51,8 @@ type AdminStats = {
 export function AdminPage() {
   const { user } = useAuth();
   const { selectedCity, setSelectedCity, showToast } = useAppState();
+  const { t, language } = useTranslation();
+  const copy = t.admin;
 
   const [reports, setReports] = useState<AdminReport[]>([]);
   const [stats, setStats] = useState<AdminStats>({
@@ -98,7 +101,7 @@ export function AdminPage() {
   const handleStatusChange = async (id: string, newStatus: ReportStatus) => {
     // Optimistic update
     setReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
+      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)),
     );
 
     try {
@@ -109,7 +112,7 @@ export function AdminPage() {
       });
 
       if (res.ok) {
-        showToast(`Report ${id} status updated to "${newStatus}".`, 'success');
+        showToast(`${copy.statusUpdatedToast} (${id})`, 'success');
         // Refresh stats
         const statsRes = await fetch('http://localhost:5000/api/admin/stats');
         if (statsRes.ok) setStats(await statsRes.json());
@@ -121,7 +124,14 @@ export function AdminPage() {
 
   // Handle report deletion
   const handleDeleteReport = async (id: string) => {
-    if (!window.confirm(`Are you sure you want to dismiss and delete report ${id}?`)) {
+    const confirmPrompt =
+      language === 'hi'
+        ? `क्या आप निश्चित रूप से रिपोर्ट ${id} को हटाना चाहते हैं?`
+        : language === 'mr'
+        ? `तुम्हाला खात्री आहे का की तुम्ही तक्रार ${id} हटवू इच्छिता?`
+        : `Are you sure you want to dismiss and delete report ${id}?`;
+
+    if (!window.confirm(confirmPrompt)) {
       return;
     }
 
@@ -133,7 +143,7 @@ export function AdminPage() {
       });
 
       if (res.ok) {
-        showToast(`Report ${id} deleted by Admin.`, 'info');
+        showToast(copy.reportDeletedToast, 'info');
         const statsRes = await fetch('http://localhost:5000/api/admin/stats');
         if (statsRes.ok) setStats(await statsRes.json());
       }
@@ -167,17 +177,17 @@ export function AdminPage() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-bold text-cyan-300 ring-1 ring-cyan-500/40">
                 <ShieldCheck className="h-4 w-4 text-cyan-400" />
-                <span>Authority Command Center</span>
+                <span>{copy.roleBadge}</span>
               </span>
               <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[11px] font-bold text-emerald-300">
-                Admin: {user?.name || 'BioCanopy Team'}
+                {copy.roleBadge}: {user?.name || (language === 'hi' ? 'बायोकैनोपी टीम' : language === 'mr' ? 'बायोकॅनॉपी टीम' : 'BioCanopy Team')}
               </span>
             </div>
             <h1 className="mt-2 text-2xl font-black text-white sm:text-4xl tracking-tight">
-              Citizen Hazard & Greening Triage
+              {copy.title}
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-[#94BDB2] max-w-2xl leading-relaxed">
-              Review community-flagged heat traps, verify citizen identities, and dispatch municipal shade interventions across Indian metropolitan centers.
+              {copy.subtitle}
             </p>
           </div>
 
@@ -187,7 +197,7 @@ export function AdminPage() {
             className="inline-flex items-center gap-2 rounded-2xl bg-cyan-600 px-5 py-3 text-xs font-bold text-white shadow-glow hover:bg-cyan-500 transition active:scale-95 shrink-0"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh Live Queue</span>
+            <span>{language === 'hi' ? 'क्यू रीफ्रेश करें' : language === 'mr' ? 'यादी रीफ्रेश करा' : 'Refresh Live Queue'}</span>
           </button>
         </div>
 
@@ -195,51 +205,51 @@ export function AdminPage() {
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5 border-t border-cyan-500/20 pt-6">
           <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
-              Total Reports
+              {copy.kpiTotalReports}
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-white">{stats.totalReports}</span>
-              <span className="text-xs text-emerald-400 font-bold">Logged</span>
+              <span className="text-xs text-emerald-400 font-bold">{language === 'hi' ? 'दर्ज' : language === 'mr' ? 'नोंद' : 'Logged'}</span>
             </div>
           </div>
 
           <div className="rounded-2xl border border-amber-500/30 bg-[#0F2420] p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
-              Pending Review
+              {copy.kpiPendingTriage}
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-amber-400">{stats.pendingReports}</span>
-              <span className="text-xs text-[#94BDB2]">Awaiting triage</span>
+              <span className="text-xs text-[#94BDB2]">{language === 'hi' ? 'समीक्षाधीन' : language === 'mr' ? 'प्रलंबित' : 'Awaiting'}</span>
             </div>
           </div>
 
           <div className="rounded-2xl border border-cyan-500/30 bg-[#0F2420] p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">
-              Dispatched Tasks
+              {copy.kpiDispatched}
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-cyan-400">{stats.dispatchedReports}</span>
-              <span className="text-xs text-[#94BDB2]">In field</span>
+              <span className="text-xs text-[#94BDB2]">{language === 'hi' ? 'मैदान में' : language === 'mr' ? 'सक्रिय' : 'In field'}</span>
             </div>
           </div>
 
           <div className="rounded-2xl border border-emerald-500/30 bg-[#0F2420] p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-              Resolved Issues
+              {copy.kpiResolved}
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-emerald-400">{stats.resolvedReports}</span>
-              <span className="text-xs text-[#94BDB2]">Mitigated</span>
+              <span className="text-xs text-[#94BDB2]">{language === 'hi' ? 'समाधान' : language === 'mr' ? 'निवारण' : 'Mitigated'}</span>
             </div>
           </div>
 
           <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5 col-span-2 sm:col-span-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
-              Registered Citizens
+              {copy.kpiCitizens}
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-white">{stats.totalUsers}</span>
-              <span className="text-xs text-cyan-400 font-bold">Users</span>
+              <span className="text-xs text-cyan-400 font-bold">{t.common.citizen}</span>
             </div>
           </div>
         </div>
@@ -255,16 +265,16 @@ export function AdminPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by location, citizen name, or keywords..."
+              placeholder={copy.searchPlaceholder}
               className="w-full rounded-xl border border-emerald-500/30 bg-[#081412] py-2.5 pl-10 pr-4 text-xs font-medium text-white placeholder-[#94BDB2]/50 focus:border-cyan-400 focus:outline-none"
             />
           </div>
 
           {/* Quick Filter Counts */}
           <div className="flex items-center gap-2 text-xs text-[#94BDB2]">
-            <span>Showing</span>
+            <span>{language === 'hi' ? 'दिखा रहे हैं' : language === 'mr' ? 'दाखवत आहे' : 'Showing'}</span>
             <strong className="text-white">{filteredReports.length}</strong>
-            <span>of {reports.length} total reports</span>
+            <span>{language === 'hi' ? `कुल ${reports.length} रिपोर्ट में से` : language === 'mr' ? `एकूण ${reports.length} तक्रारींमधून` : `of ${reports.length} total reports`}</span>
           </div>
         </div>
 
@@ -272,7 +282,7 @@ export function AdminPage() {
         <div className="flex flex-wrap items-center gap-3 border-t border-emerald-500/10 pt-3">
           {/* City Filter */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">City:</span>
+            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterCity}:</span>
             <div className="flex flex-wrap gap-1">
               {['All', 'Delhi', 'Mumbai', 'Bengaluru', 'Ahmedabad'].map((c) => (
                 <button
@@ -284,7 +294,7 @@ export function AdminPage() {
                       : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
                   }`}
                 >
-                  {c}
+                  {c === 'All' ? copy.allCities : c}
                 </button>
               ))}
             </div>
@@ -292,19 +302,25 @@ export function AdminPage() {
 
           {/* Status Filter */}
           <div className="flex items-center gap-1.5 ml-auto">
-            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">Status:</span>
+            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterStatus}:</span>
             <div className="flex flex-wrap gap-1">
-              {['All', 'Pending Review', 'Reviewed', 'Task Dispatched', 'Resolved'].map((st) => (
+              {[
+                { key: 'All', label: copy.allStatuses },
+                { key: 'Pending Review', label: t.reports.statusPending },
+                { key: 'Reviewed', label: t.reports.statusReviewed },
+                { key: 'Task Dispatched', label: t.reports.statusDispatched },
+                { key: 'Resolved', label: language === 'hi' ? 'समाधान संपन्न' : language === 'mr' ? 'निवारण झाले' : 'Resolved' },
+              ].map((st) => (
                 <button
-                  key={st}
-                  onClick={() => setFilterStatus(st)}
+                  key={st.key}
+                  onClick={() => setFilterStatus(st.key)}
                   className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                    filterStatus === st
+                    filterStatus === st.key
                       ? 'bg-emerald-600 text-white shadow-glow'
                       : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
                   }`}
                 >
-                  {st}
+                  {st.label}
                 </button>
               ))}
             </div>
@@ -317,9 +333,13 @@ export function AdminPage() {
         {filteredReports.length === 0 ? (
           <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-12 text-center text-[#94BDB2]">
             <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400 opacity-60" />
-            <h3 className="mt-3 text-base font-bold text-white">No Matching Reports</h3>
+            <h3 className="mt-3 text-base font-bold text-white">{copy.noReportsFound}</h3>
             <p className="mt-1 text-xs">
-              All community hazard reports matching the current filters have been resolved or triaged.
+              {language === 'hi'
+                ? 'वर्तमान फ़िल्टर के अनुसार सभी नागरिक रिपोर्ट सत्यापित अथवा हल हो चुकी हैं।'
+                : language === 'mr'
+                ? 'निवडलेल्या निकषानुसार सर्व नागरिक तक्रारी तपासल्या किंवा सोडवल्या गेल्या आहेत.'
+                : 'All community hazard reports matching the current filters have been resolved or triaged.'}
             </p>
           </div>
         ) : (
@@ -364,7 +384,7 @@ export function AdminPage() {
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-300 ring-1 ring-cyan-500/30">
                         <User className="h-3 w-3 text-cyan-400" />
-                        <span>Reported by: <strong>{report.reporterName}</strong> ({report.reporterEmail})</span>
+                        <span>{language === 'hi' ? 'नागरिक:' : language === 'mr' ? 'नागरिक:' : 'Reported by:'} <strong>{report.reporterName}</strong> ({report.reporterEmail})</span>
                       </span>
                     </div>
 
@@ -382,7 +402,7 @@ export function AdminPage() {
                       </span>
                       <span className="flex items-center gap-1 text-emerald-300 font-bold">
                         <ThumbsUp className="h-3.5 w-3.5" />
-                        {report.upvotes} Community Upvotes
+                        {report.upvotes} {language === 'hi' ? 'सामुदायिक समर्थन' : language === 'mr' ? 'नागरिक मते' : 'Community Upvotes'}
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5 text-cyan-400" />
@@ -415,7 +435,7 @@ export function AdminPage() {
                         onClick={() => handleStatusChange(report.id, 'Reviewed')}
                         className="rounded-xl bg-blue-600/80 hover:bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
                       >
-                        Accept & Review
+                        {copy.btnReview}
                       </button>
                     )}
 
@@ -424,7 +444,7 @@ export function AdminPage() {
                         onClick={() => handleStatusChange(report.id, 'Task Dispatched')}
                         className="rounded-xl bg-cyan-600 hover:bg-cyan-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-glow transition active:scale-95"
                       >
-                        Dispatch Squad 🚀
+                        {copy.btnDispatch} 🚀
                       </button>
                     )}
 
@@ -433,14 +453,14 @@ export function AdminPage() {
                         onClick={() => handleStatusChange(report.id, 'Resolved')}
                         className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
                       >
-                        Mark Resolved ✅
+                        {copy.btnResolve} ✅
                       </button>
                     )}
 
                     <button
                       onClick={() => handleDeleteReport(report.id)}
                       className="rounded-xl border border-red-500/30 bg-red-950/40 hover:bg-red-900/60 p-1.5 text-red-400 hover:text-red-300 transition"
-                      title="Dismiss & Delete Report"
+                      title={copy.btnDelete}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

@@ -31,6 +31,7 @@ import {
   cityRoutes,
   thermalPockets,
 } from '../../data/mockData';
+import { useTranslation } from '../../i18n/useTranslation';
 import { useAppState } from '../../store/AppStateContext';
 import type { RouteOverlay } from '../../types';
 
@@ -77,6 +78,7 @@ export function CoolRouteMap() {
     setIsReportModalOpen,
     theme,
   } = useAppState();
+  const { t } = useTranslation();
 
   const [showHeatOverlay, setShowHeatOverlay] = useState(true);
   const [showCitizenPins, setShowCitizenPins] = useState(true);
@@ -115,13 +117,13 @@ export function CoolRouteMap() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Cool-Route Navigation</span>
+              <span>{t.map.title}</span>
               <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
                 {selectedCity}
               </span>
             </h3>
             <p className="text-[11px] font-medium text-[#94BDB2]">
-              Recommended 82% shaded green corridor vs direct unshaded asphalt
+              {t.map.subtitle}
             </p>
           </div>
         </div>
@@ -139,7 +141,7 @@ export function CoolRouteMap() {
               }`}
             >
               <span className="h-2 w-2 rounded-full bg-emerald-300"></span>
-              <span>Cool Path</span>
+              <span>{t.map.coolPath}</span>
             </button>
             <button
               onClick={() => setActiveRouteId('fastest')}
@@ -150,7 +152,7 @@ export function CoolRouteMap() {
               }`}
             >
               <span className="h-2 w-2 rounded-full bg-red-400"></span>
-              <span>Fastest Path</span>
+              <span>{t.map.fastestPath}</span>
             </button>
           </div>
 
@@ -164,7 +166,7 @@ export function CoolRouteMap() {
             }`}
           >
             <Thermometer className="h-3.5 w-3.5 text-amber-400" />
-            <span>Thermal Satellite</span>
+            <span>{t.map.thermalSatellite}</span>
           </button>
 
           {/* Citizen Pins Toggle */}
@@ -177,7 +179,7 @@ export function CoolRouteMap() {
             }`}
           >
             <AlertTriangle className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Hazard Pins ({cityReports.length})</span>
+            <span>{t.map.hazardPins} ({cityReports.length})</span>
           </button>
         </div>
       </div>
@@ -219,16 +221,16 @@ export function CoolRouteMap() {
               <div className="p-2 text-white">
                 <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-xs">
                   <Trees className="h-4 w-4" />
-                  <span>Recommended Cool Path</span>
+                  <span>{t.map.coolPath}</span>
                 </div>
                 <div className="mt-1 font-bold text-white text-sm">
-                  14 min · 82% shaded
+                  14 {t.common.mins} · 82% {t.map.shadedCover}
                 </div>
                 <p className="mt-1 text-xs text-[#94BDB2]">
-                  Dense neem & banyan tree arches lower radiant heat by -34% compared to bare road asphalt.
+                  {t.map.coolPathDetails}
                 </p>
                 <div className="mt-2 rounded-lg bg-cyan-500/20 border border-cyan-500/30 p-1.5 text-[11px] font-bold text-cyan-300">
-                  ✓ Continuous tree canopy protection
+                  {t.map.continuousCanopy}
                 </div>
               </div>
             </Popup>
@@ -249,16 +251,16 @@ export function CoolRouteMap() {
               <div className="p-2 text-white">
                 <div className="flex items-center gap-1.5 text-red-400 font-bold text-xs">
                   <Sun className="h-4 w-4" />
-                  <span>Alternate Fastest Path</span>
+                  <span>{t.map.fastestPath}</span>
                 </div>
                 <div className="mt-1 font-bold text-white text-sm">
-                  12 min · high heat exposure
+                  12 {t.common.mins} · {t.map.highHeatExposure}
                 </div>
                 <p className="mt-1 text-xs text-[#94BDB2]">
-                  Unshaded concrete overpass with surface temperatures reaching 48°C.
+                  {t.map.fastestPathDetails}
                 </p>
                 <div className="mt-2 rounded-lg bg-red-950/50 border border-red-700/40 p-1.5 text-[11px] font-bold text-red-300">
-                  ⚠ Danger: No pedestrian shade protection
+                  {t.map.highSolarStress}
                 </div>
               </div>
             </Popup>
@@ -425,10 +427,10 @@ export function CoolRouteMap() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
-                      Live Cool Guidance Active
+                      {t.map.turnNavigation}
                     </span>
                     <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-200 ring-1 ring-cyan-400/40">
-                      Step {navigationStep + 1} of {coolRoute.turnInstructions.length}
+                      {t.map.stepOf} {navigationStep + 1} / {coolRoute.turnInstructions.length}
                     </span>
                   </div>
                   <h4 className="text-sm font-bold text-white mt-1">
@@ -439,7 +441,7 @@ export function CoolRouteMap() {
               <button
                 onClick={() => setIsNavigating(false)}
                 className="rounded-lg p-1 text-[#94BDB2] hover:bg-white/10 hover:text-white"
-                title="Stop Navigation"
+                title={t.map.stopNavigation}
               >
                 ✕
               </button>
@@ -448,10 +450,10 @@ export function CoolRouteMap() {
             <div className="mt-3 flex items-center justify-between border-t border-cyan-500/20 pt-2 text-xs text-[#94BDB2]">
               <div className="flex items-center gap-1.5 text-cyan-300 font-semibold">
                 <Trees className="h-4 w-4" />
-                <span>+82% Tree Canopy Shade</span>
+                <span>{t.map.canopyShadeBadge}</span>
               </div>
               <span className="font-semibold text-white">
-                Arrival in ~14 mins
+                {t.map.arrivalIn}
               </span>
             </div>
 
@@ -471,26 +473,26 @@ export function CoolRouteMap() {
         {/* Map Legend (Bottom-Right overlay) */}
         <div className="absolute bottom-4 right-4 z-20 hidden rounded-2xl border border-emerald-500/20 bg-[#0F2420]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block text-xs">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
-            Navigation Legend
+            {t.map.navigationLegend}
           </p>
           <div className="mt-2 space-y-1.5 text-[#ECFDF5]">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-6 rounded-full bg-[#22D3EE] shadow-[0_0_8px_rgba(34,211,238,0.7)]"></span>
-              <span>Recommended Cool Path (Light Turquoise)</span>
+              <span>{t.map.legendCoolPath}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-6 rounded-full bg-[#B91C1C] shadow-[0_0_6px_rgba(185,28,28,0.6)]"></span>
-              <span>Fastest Path (Dark Red)</span>
+              <span>{t.map.legendFastestPath}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-red-500/40 border border-red-400"></span>
-              <span>Thermal Satellite Hotspot (42°C+)</span>
+              <span>{t.map.legendHotspot}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-3.5 w-3.5 rounded-full bg-red-600 text-white text-[9px] flex items-center justify-center font-bold">
                 ⚠
               </span>
-              <span>Citizen Hazard Pin</span>
+              <span>{t.map.legendHazardPin}</span>
             </div>
           </div>
         </div>
@@ -502,33 +504,33 @@ export function CoolRouteMap() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-cyan-500/30 bg-[#0F2420] p-3.5">
               <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide">
-                Cool Path
+                {t.map.coolPath}
               </span>
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-[#22D3EE]">14</span>
-                <span className="text-xs text-[#94BDB2]">mins</span>
+                <span className="text-xs text-[#94BDB2]">{t.common.mins}</span>
               </div>
               <p className="mt-0.5 text-xs font-bold text-cyan-300">
-                82% Shaded Cover
+                82% {t.map.shadedCover}
               </p>
             </div>
 
             <div className="rounded-2xl border border-red-800/40 bg-[#0F2420] p-3.5">
               <span className="text-[10px] font-bold text-red-500 uppercase tracking-wide">
-                Fastest Path
+                {t.map.fastestPath}
               </span>
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-red-500">12</span>
-                <span className="text-xs text-[#94BDB2]">mins</span>
+                <span className="text-xs text-[#94BDB2]">{t.common.mins}</span>
               </div>
               <p className="mt-0.5 text-xs font-bold text-red-400">
-                High Heat Exposure
+                {t.map.highHeatExposure}
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
-                Heat Reduction
+                {t.map.heatReduction}
               </span>
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-cyan-400">-34%</span>
@@ -540,14 +542,14 @@ export function CoolRouteMap() {
 
             <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
-                Extra Commute
+                {t.map.extraCommute}
               </span>
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-white">+2</span>
-                <span className="text-xs text-[#94BDB2]">mins</span>
+                <span className="text-xs text-[#94BDB2]">{t.common.mins}</span>
               </div>
               <p className="mt-0.5 text-xs text-emerald-300 font-medium">
-                Worth the comfort
+                {t.map.worthTheComfort}
               </p>
             </div>
           </div>
@@ -558,7 +560,7 @@ export function CoolRouteMap() {
               className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-[#0F2420] px-4 py-3 text-xs font-bold text-amber-300 hover:bg-amber-500/10"
             >
               <AlertTriangle className="h-4 w-4 text-amber-400" />
-              <span>Flag Heat Spot</span>
+              <span>{t.map.flagHeatSpot}</span>
             </button>
 
             <button
@@ -569,7 +571,7 @@ export function CoolRouteMap() {
               className="flex-1 lg:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
             >
               <Navigation className="h-4 w-4 text-white" />
-              <span>{isNavigating ? 'Stop Navigation' : 'Start Shaded Route'}</span>
+              <span>{isNavigating ? t.map.stopNavigation : t.map.startShadedRoute}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

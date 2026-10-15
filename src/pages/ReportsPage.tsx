@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { cityCoordinates } from '../data/mockData';
+import { useTranslation } from '../i18n/useTranslation';
 import { useAppState } from '../store/AppStateContext';
 import type { HazardCategory } from '../types';
 
@@ -26,6 +27,7 @@ export function ReportsPage() {
     updateReportStatus,
     upvoteReport,
   } = useAppState();
+  const { t } = useTranslation();
   const [filterCategory, setFilterCategory] = useState<string>('All');
 
   const cityCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
@@ -44,10 +46,10 @@ export function ReportsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-black text-white sm:text-2xl">
-            Hazard Reporting · {selectedCity}
+            {t.reports.title} · {selectedCity}
           </h1>
           <p className="text-xs text-[#94BDB2]">
-            {filteredReports.length} active crowdsourced community reports in {selectedCity}
+            {filteredReports.length} {t.reports.activeReportsSubtitle} {selectedCity}
           </p>
         </div>
 
@@ -56,7 +58,7 @@ export function ReportsPage() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95 shrink-0"
         >
           <Plus className="h-4 w-4" />
-          <span>Report New Hazard</span>
+          <span>{t.reports.reportNewHazard}</span>
         </button>
       </div>
 
@@ -68,11 +70,11 @@ export function ReportsPage() {
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-emerald-400" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                Live Geotagged Hazard Map
+                {t.reports.liveMapTitle}
               </h3>
             </div>
             <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-              {filteredReports.length} Active Pins
+              {filteredReports.length} {t.reports.activePins}
             </span>
           </div>
 
@@ -140,100 +142,127 @@ export function ReportsPage() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-emerald-400" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                Community Reports Feed
+                {t.reports.complaintsFeedTitle}
               </h3>
             </div>
 
             <div className="flex flex-wrap gap-1">
-              {(['All', 'Unshaded Hotspot', 'Illegal Burning', 'Construction Dust'] as const).map(
-                (cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilterCategory(cat)}
-                    className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition ${
-                      filterCategory === cat
-                        ? 'bg-emerald-600 text-white shadow-glow'
-                        : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ),
-              )}
+              {[
+                { id: 'All', label: t.reports.filterAll },
+                { id: 'Unshaded Hotspot', label: t.reports.filterUnshaded },
+                { id: 'Illegal Burning', label: t.reports.filterBurning },
+                { id: 'Construction Dust', label: t.reports.filterDust },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setFilterCategory(cat.id)}
+                  className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition ${
+                    filterCategory === cat.id
+                      ? 'bg-emerald-600 text-white shadow-glow'
+                      : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Cards List */}
           <div className="mt-4 space-y-3.5 max-h-[500px] overflow-y-auto pr-1">
-            {filteredReports.map((report) => (
-              <div
-                key={report.id}
-                className="rounded-2xl border border-emerald-500/20 bg-[#0A1B17] p-4 transition hover:border-emerald-400/40"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-2.5">
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
-                        report.category === 'Unshaded Hotspot'
-                          ? 'bg-red-500/20 text-red-400'
-                          : report.category === 'Illegal Burning'
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}
-                    >
-                      {report.category === 'Illegal Burning' ? (
-                        <Flame className="h-4 w-4" />
-                      ) : report.category === 'Construction Dust' ? (
-                        <Wind className="h-4 w-4" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4" />
-                      )}
+            {filteredReports.length === 0 ? (
+              <div className="py-12 text-center text-xs text-[#94BDB2]">
+                {t.reports.noReportsFound}
+              </div>
+            ) : (
+              filteredReports.map((report) => {
+                const categoryLabel =
+                  report.category === 'Unshaded Hotspot'
+                    ? t.reports.filterUnshaded
+                    : report.category === 'Illegal Burning'
+                    ? t.reports.filterBurning
+                    : report.category === 'Construction Dust'
+                    ? t.reports.filterDust
+                    : t.reports.filterNoTree;
+
+                const statusLabel =
+                  report.status === 'Task Dispatched'
+                    ? t.reports.statusDispatched
+                    : report.status === 'Reviewed'
+                    ? t.reports.statusReviewed
+                    : t.reports.statusPending;
+
+                return (
+                  <div
+                    key={report.id}
+                    className="rounded-2xl border border-emerald-500/20 bg-[#0A1B17] p-4 transition hover:border-emerald-400/40"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
+                            report.category === 'Unshaded Hotspot'
+                              ? 'bg-red-500/20 text-red-400'
+                              : report.category === 'Illegal Burning'
+                              ? 'bg-amber-500/20 text-amber-400'
+                              : 'bg-blue-500/20 text-blue-400'
+                          }`}
+                        >
+                          {report.category === 'Illegal Burning' ? (
+                            <Flame className="h-4 w-4" />
+                          ) : report.category === 'Construction Dust' ? (
+                            <Wind className="h-4 w-4" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4" />
+                          )}
+                        </div>
+
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                            {categoryLabel}
+                          </span>
+                          <h4 className="text-xs font-bold text-white mt-0.5">
+                            {report.locationName}
+                          </h4>
+                          <p className="text-[11px] text-[#94BDB2] mt-1 leading-relaxed">
+                            {report.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+                          report.status === 'Task Dispatched'
+                            ? 'border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
+                            : report.status === 'Reviewed'
+                            ? 'border-blue-500/40 bg-blue-500/20 text-blue-300'
+                            : 'border-amber-500/40 bg-amber-500/20 text-amber-300'
+                        }`}
+                      >
+                        {statusLabel}
+                      </span>
                     </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                        {report.category}
+                    {/* Footer Metadata & Upvoting */}
+                    <div className="mt-3 flex items-center justify-between border-t border-emerald-500/10 pt-2 text-[10px] text-[#94BDB2]">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {report.submittedAt} · {report.source}
                       </span>
-                      <h4 className="text-xs font-bold text-white mt-0.5">
-                        {report.locationName}
-                      </h4>
-                      <p className="text-[11px] text-[#94BDB2] mt-1 leading-relaxed">
-                        {report.description}
-                      </p>
+
+                      <button
+                        onClick={() => upvoteReport(report.id)}
+                        className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300 transition active:scale-95"
+                        title={t.reports.upvotePrompt}
+                      >
+                        <ThumbsUp className="h-3 w-3" />
+                        <span>{t.common.upvote} ({report.upvotes || 1})</span>
+                      </button>
                     </div>
                   </div>
-
-                  <span
-                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
-                      report.status === 'Task Dispatched'
-                        ? 'border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
-                        : report.status === 'Reviewed'
-                        ? 'border-blue-500/40 bg-blue-500/20 text-blue-300'
-                        : 'border-amber-500/40 bg-amber-500/20 text-amber-300'
-                    }`}
-                  >
-                    {report.status}
-                  </span>
-                </div>
-
-                {/* Footer Metadata & Upvoting */}
-                <div className="mt-3 flex items-center justify-between border-t border-emerald-500/10 pt-2 text-[10px] text-[#94BDB2]">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {report.submittedAt} · {report.source}
-                  </span>
-
-                  <button
-                    onClick={() => upvoteReport(report.id)}
-                    className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300 transition active:scale-95"
-                    title="Upvote to boost priority"
-                  >
-                    <ThumbsUp className="h-3 w-3" />
-                    <span>Upvote ({report.upvotes || 1})</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

@@ -12,9 +12,14 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatedCanopyBackground } from '../components/shared/AnimatedCanopyBackground';
+import { useTranslation } from '../i18n/useTranslation';
+import { useAppState } from '../store/AppStateContext';
 import { useAuth } from '../store/AuthContext';
 
 export function UserAuthPage() {
+  const { language, setLanguage } = useAppState();
+  const { t } = useTranslation();
+  const copy = t.auth;
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('neha.resident@biocanopy.demo');
@@ -122,6 +127,28 @@ export function UserAuthPage() {
         transition={{ duration: 0.45 }}
         className="relative z-10 w-full max-w-md flex flex-col items-center"
       >
+        {/* Language Switcher Pill on Auth Screen */}
+        <div className="mb-4 flex items-center gap-1 rounded-2xl bg-[#081412]/80 p-1 border border-emerald-500/20 backdrop-blur-md">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'hi', label: 'हिन्दी' },
+            { code: 'mr', label: 'मराठी' },
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => setLanguage(lang.code as any)}
+              className={`rounded-xl px-3 py-1 text-xs font-bold transition ${
+                language === lang.code
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-[#94BDB2] hover:text-white'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
         {/* BioCanopy Brand & Simple Tagline on Top */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow mb-3">
@@ -131,7 +158,7 @@ export function UserAuthPage() {
             Bio<span className="text-emerald-400">Canopy</span>
           </h1>
           <p className="mt-2 text-sm text-[#94BDB2] font-medium tracking-wide">
-            Air quality and heat
+            {copy.subtitle}
           </p>
         </div>
 
@@ -148,7 +175,7 @@ export function UserAuthPage() {
                   : 'text-[#94BDB2] hover:text-white'
               }`}
             >
-              Sign In
+              {copy.tabSignIn}
             </button>
             <button
               type="button"
@@ -159,7 +186,7 @@ export function UserAuthPage() {
                   : 'text-[#94BDB2] hover:text-white'
               }`}
             >
-              Create Account
+              {copy.tabCreateAccount}
             </button>
           </div>
 
@@ -180,7 +207,7 @@ export function UserAuthPage() {
             {mode === 'signup' && (
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
-                  Full Name
+                  {copy.fullName}
                 </label>
                 <div className="relative mt-1.5">
                   <UserIcon className="absolute left-3.5 top-3 h-4 w-4 text-emerald-400" />
@@ -198,7 +225,7 @@ export function UserAuthPage() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
-                Email Address
+                {copy.emailAddress}
               </label>
               <div className="relative mt-1.5">
                 <Mail className="absolute left-3.5 top-3 h-4 w-4 text-emerald-400" />
@@ -215,7 +242,7 @@ export function UserAuthPage() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#94BDB2]">
-                Password
+                {copy.password}
               </label>
               <div className="relative mt-1.5">
                 <Lock className="absolute left-3.5 top-3 h-4 w-4 text-emerald-400" />
@@ -239,12 +266,12 @@ export function UserAuthPage() {
                 <>
                   <Loader2 className="h-4 w-4 animate-spin text-white" />
                   <span>
-                    {mode === 'login' ? 'Verifying...' : 'Creating Account...'}
+                    {copy.signingIn}
                   </span>
                 </>
               ) : (
                 <span>
-                  {mode === 'login' ? 'Sign In to BioCanopy' : 'Create Account'}
+                  {mode === 'login' ? copy.btnSignIn : copy.btnCreateAccount}
                 </span>
               )}
             </button>
@@ -259,7 +286,7 @@ export function UserAuthPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
             >
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              <span>One-Click Demo as Citizen (Neha Resident)</span>
+              <span>{copy.demoCitizen}</span>
             </button>
 
             <button
@@ -269,7 +296,7 @@ export function UserAuthPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
             >
               <ShieldCheck className="h-4 w-4 text-cyan-400" />
-              <span>One-Click Demo as Admin (BioCanopy Team)</span>
+              <span>{copy.demoAdmin}</span>
             </button>
           </div>
         </div>
