@@ -76,6 +76,7 @@ export function CoolRouteMap() {
     activeRouteId,
     setActiveRouteId,
     setIsReportModalOpen,
+    addVisitedRoute,
     theme,
   } = useAppState();
   const { t } = useTranslation();
@@ -566,6 +567,24 @@ export function CoolRouteMap() {
             <button
               onClick={() => {
                 setActiveRouteId('cool');
+                if (!isNavigating) {
+                  addVisitedRoute({
+                    id: `vr-${Date.now()}`,
+                    routeName: `${selectedCity} Shaded Corridor ➔ ${coolRoute.name}`,
+                    city: selectedCity,
+                    origin: coolRoute.turnInstructions[0]?.split('(')[0]?.trim() || `${selectedCity} Hub`,
+                    destination:
+                      coolRoute.turnInstructions[coolRoute.turnInstructions.length - 1]
+                        ?.split('(')[0]
+                        ?.trim() || `${selectedCity} Destination`,
+                    shadePercentage: coolRoute.shadePercentage,
+                    heatReduction: coolRoute.heatReduction || 34,
+                    distance: '1.6 km',
+                    travelTime: coolRoute.travelTime,
+                    visitedAt: 'Just now',
+                    status: 'Completed',
+                  });
+                }
                 setIsNavigating(!isNavigating);
               }}
               className="flex-1 lg:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"

@@ -5,6 +5,23 @@ export type User = {
   name: string;
   email: string;
   role: Role;
+  password?: string;
+  city?: string;
+  memberSince?: string;
+};
+
+export type VisitedRoute = {
+  id: string;
+  routeName: string;
+  city: string;
+  origin: string;
+  destination: string;
+  shadePercentage: number;
+  heatReduction: number;
+  distance: string;
+  travelTime: string;
+  visitedAt: string;
+  status: 'Completed' | 'In Progress';
 };
 
 export type Language = 'en' | 'hi' | 'mr';

@@ -28,6 +28,19 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/auth'
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const enrichUser = (rawUser: User, pass?: string): User => {
+  const pwd =
+    pass ||
+    rawUser.password ||
+    (rawUser.email?.toLowerCase().includes('admin') ? 'admin123' : 'citizen123');
+  return {
+    ...rawUser,
+    password: pwd,
+    memberSince: rawUser.memberSince || 'September 2026',
+    city: rawUser.city || 'Delhi',
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -51,8 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (res.ok) {
             const data = await res.json();
-            setUser(data.user);
-            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
+            const enriched = enrichUser(data.user);
+            setUser(enriched);
+            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
           } else {
             // Token expired or invalid
             localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -63,11 +77,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch {
           // If server is unreachable, use saved user cache
           if (savedUser) {
-            setUser(JSON.parse(savedUser) as User);
+            setUser(enrichUser(JSON.parse(savedUser) as User));
           }
         }
       } else if (savedUser) {
-        setUser(JSON.parse(savedUser) as User);
+        setUser(enrichUser(JSON.parse(savedUser) as User));
+      } else {
+        // Default guest/citizen user Neha Resident
+        const defaultUser: User = {
+          name: 'Neha Resident',
+          email: 'neha.resident@biocanopy.demo',
+          role: 'citizen',
+          password: 'citizen123',
+          memberSince: 'September 2026',
+          city: 'Delhi',
+        };
+        setUser(defaultUser);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(defaultUser));
       }
       setIsLoading(false);
     };
@@ -96,9 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: false, message: data.message || 'Login failed.' };
         }
 
-        setUser(data.user);
+        const enriched = enrichUser(data.user, payload.password);
+        setUser(enriched);
         setToken(data.token);
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
         return { success: true, message: data.message };
@@ -109,11 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'name' in payload && typeof payload.name === 'string'
             ? payload.name
             : 'Neha Resident';
-        const fallbackUser: User = {
-          name: fallbackName,
-          email: payload.email,
-          role: 'citizen',
-        };
+        const fallbackUser: User = enrichUser(
+          {
+            name: fallbackName,
+            email: payload.email,
+            role: payload.email.toLowerCase().includes('admin') ? 'admin' : 'citizen',
+          },
+          payload.password
+        );
         setUser(fallbackUser);
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fallbackUser));
         return { success: true, message: 'Logged in (offline demo mode).' };
@@ -121,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Direct object login fallback
-    const directUser = payload as User;
+    const directUser = enrichUser(payload as User);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(directUser));
     setUser(directUser);
     return { success: true };
@@ -148,9 +178,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: false, message: data.message || 'Signup failed.' };
         }
 
-        setUser(data.user);
+        const enriched = enrichUser(data.user, payload.password);
+        setUser(enriched);
         setToken(data.token);
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
         return { success: true, message: data.message };
@@ -160,18 +191,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'name' in payload && typeof payload.name === 'string'
             ? payload.name
             : 'New Resident';
-        const fallbackUser: User = {
-          name: fallbackName,
-          email: payload.email,
-          role: 'citizen',
-        };
+        const fallbackUser: User = enrichUser(
+          {
+            name: fallbackName,
+            email: payload.email,
+            role: 'citizen',
+          },
+          payload.password
+        );
         setUser(fallbackUser);
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fallbackUser));
         return { success: true, message: 'Account created (offline demo mode).' };
       }
     }
 
-    const directUser = payload as User;
+    const directUser = enrichUser(payload as User);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(directUser));
     setUser(directUser);
     return { success: true };

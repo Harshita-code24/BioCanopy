@@ -18,6 +18,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { cityMetrics } from '../../data/mockData';
 import { useAppState } from '../../store/AppStateContext';
 import { useAuth } from '../../store/AuthContext';
+import { UserProfileModal } from '../profile/UserProfileModal';
 import { ReportModal } from '../reporting/ReportModal';
 import { AnimatedCanopyBackground } from '../shared/AnimatedCanopyBackground';
 import { LanguageSelector } from '../shared/LanguageSelector';
@@ -27,7 +28,7 @@ import { useTranslation } from '../../i18n/useTranslation';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
-  const { selectedCity, setSelectedCity, setIsReportModalOpen } = useAppState();
+  const { selectedCity, setSelectedCity, setIsReportModalOpen, setIsProfileOpen } = useAppState();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -150,11 +151,18 @@ export function AppLayout() {
           {/* Language Selector Dropdown (Hindi, Marathi, English) */}
           <LanguageSelector />
 
-          {/* User Profile Pill */}
-          <div className="hidden md:flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-[#0F2420] px-3 py-1.5 text-xs text-[#94BDB2]">
-            <User className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="font-medium text-white max-w-[90px] truncate">{user?.name || t.common.citizen}</span>
-          </div>
+          {/* User Profile Clickable Pill (Opens Profile Modal for Neha Resident / Citizen) */}
+          <button
+            type="button"
+            onClick={() => setIsProfileOpen(true)}
+            className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 sm:px-3 py-1.5 text-xs text-[#94BDB2] transition hover:border-emerald-400 hover:text-white hover:bg-emerald-500/10 active:scale-95 shadow-sm"
+            title={`${user?.name || 'Neha Resident'} · ${t.profile.title}`}
+          >
+            <User className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span className="font-semibold text-white max-w-[70px] sm:max-w-[110px] truncate">
+              {user?.name || 'Neha Resident'}
+            </span>
+          </button>
 
           {/* Quick Action: Report Hazard */}
           <button
@@ -253,8 +261,19 @@ export function AppLayout() {
                   </div>
                 </div>
 
-                {/* Bottom Row Actions - cleanly formatted without duplicate Report Hazard button */}
-                <div className="mt-5 flex items-center justify-end border-t border-emerald-500/20 pt-4">
+                {/* Bottom Row Actions */}
+                <div className="mt-5 flex items-center justify-between border-t border-emerald-500/20 pt-4">
+                  <button
+                    onClick={() => {
+                      setIsSidebarOpen(false);
+                      setIsProfileOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3.5 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 hover:text-white transition"
+                  >
+                    <User className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>{t.profile.title}</span>
+                  </button>
+
                   <button
                     onClick={handleLogout}
                     className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 transition"
@@ -299,6 +318,9 @@ export function AppLayout() {
 
       {/* Global Citizen Hazard Reporting Modal */}
       <ReportModal />
+
+      {/* Global Citizen Profile Modal */}
+      <UserProfileModal />
     </div>
   );
 }

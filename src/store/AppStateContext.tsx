@@ -19,6 +19,7 @@ import type {
   Language,
   Report,
   ReportStatus,
+  VisitedRoute,
 } from '../types';
 
 type ToastInfo = {
@@ -46,6 +47,10 @@ type AppStateValue = {
   dispatchPlantingTask: (zoneId: string) => void;
   isReportModalOpen: boolean;
   setIsReportModalOpen: (open: boolean) => void;
+  isProfileOpen: boolean;
+  setIsProfileOpen: (open: boolean) => void;
+  visitedRoutes: VisitedRoute[];
+  addVisitedRoute: (route: VisitedRoute) => void;
   selectedPreset: AiConditionPreset;
   setSelectedPreset: (preset: AiConditionPreset) => void;
   isNavigating: boolean;
@@ -64,8 +69,51 @@ const LANG_KEY = 'biocanopy_lang_v2';
 const REPORTS_KEY = 'biocanopy_reports_v2';
 const ZONES_KEY = 'biocanopy_zones_v2';
 const CITY_KEY = 'biocanopy_city_v2';
+const ROUTES_HISTORY_KEY = 'biocanopy_routes_history_v2';
 const API_REPORTS_URL = import.meta.env.VITE_API_REPORTS_URL || 'http://localhost:5000/api/reports';
 const API_TELEMETRY_URL = import.meta.env.VITE_API_TELEMETRY_URL || 'http://localhost:5000/api/telemetry';
+
+export const defaultVisitedRoutes: VisitedRoute[] = [
+  {
+    id: 'vr-01',
+    routeName: 'Dadar West Walkway ➔ Shivaji Park Outer Shaded Path',
+    city: 'Mumbai',
+    origin: 'Dadar West Railway Exit',
+    destination: 'Shivaji Park Perimeter Walkway',
+    shadePercentage: 82,
+    heatReduction: 31,
+    distance: '1.2 km',
+    travelTime: '14 min',
+    visitedAt: 'Today, 09:30 AM',
+    status: 'Completed',
+  },
+  {
+    id: 'vr-02',
+    routeName: 'Connaught Place Radial ➔ Janpath Green Arch',
+    city: 'Delhi',
+    origin: 'CP Metro Gate 2',
+    destination: 'Janpath Tree Corridor',
+    shadePercentage: 85,
+    heatReduction: 34,
+    distance: '1.8 km',
+    travelTime: '18 min',
+    visitedAt: 'Yesterday, 04:15 PM',
+    status: 'Completed',
+  },
+  {
+    id: 'vr-03',
+    routeName: 'Cubbon Park Greenway ➔ MG Road Metro Canopy',
+    city: 'Bengaluru',
+    origin: 'Cubbon Park East Gate',
+    destination: 'MG Road Boulevard',
+    shadePercentage: 78,
+    heatReduction: 26,
+    distance: '1.4 km',
+    travelTime: '15 min',
+    visitedAt: '12 Oct, 11:20 AM',
+    status: 'Completed',
+  },
+];
 
 const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
@@ -86,6 +134,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [authorityZones, setAuthorityZones] =
     useState<AuthorityZone[]>(initialAuthorityZones);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [visitedRoutes, setVisitedRoutes] = useState<VisitedRoute[]>(() => {
+    try {
+      const saved = localStorage.getItem(ROUTES_HISTORY_KEY);
+      return saved ? JSON.parse(saved) : defaultVisitedRoutes;
+    } catch {
+      return defaultVisitedRoutes;
+    }
+  });
+
+  const addVisitedRoute = (newRoute: VisitedRoute) => {
+    setVisitedRoutes((prev) => {
+      const updated = [newRoute, ...prev.filter((r) => r.id !== newRoute.id)];
+      try {
+        localStorage.setItem(ROUTES_HISTORY_KEY, JSON.stringify(updated));
+      } catch (e) {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
   const [selectedPreset, setSelectedPreset] =
     useState<AiConditionPreset>('peak_heat');
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
@@ -415,6 +485,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       dispatchPlantingTask,
       isReportModalOpen,
       setIsReportModalOpen,
+      isProfileOpen,
+      setIsProfileOpen,
+      visitedRoutes,
+      addVisitedRoute,
       selectedPreset,
       setSelectedPreset,
       isNavigating,
@@ -434,6 +508,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       reports,
       authorityZones,
       isReportModalOpen,
+      isProfileOpen,
+      visitedRoutes,
       selectedPreset,
       isNavigating,
       activeRouteId,

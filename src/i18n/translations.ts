@@ -224,6 +224,33 @@ export interface TranslationDictionary {
     demoAdmin: string;
     signingIn: string;
   };
+  profile: {
+    title: string;
+    subtitle: string;
+    tabAccount: string;
+    tabReports: string;
+    tabRoutes: string;
+    nameLabel: string;
+    emailLabel: string;
+    passwordLabel: string;
+    showPassword: string;
+    hidePassword: string;
+    roleLabel: string;
+    memberSince: string;
+    noReportsTitle: string;
+    noReportsDesc: string;
+    reportedHazardsCount: string;
+    noRoutesTitle: string;
+    noRoutesDesc: string;
+    visitedRoutesCount: string;
+    shadedCoverage: string;
+    heatAvoided: string;
+    closeBtn: string;
+    status: string;
+    completed: string;
+    mins: string;
+    km: string;
+  };
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -463,6 +490,33 @@ export const translations: Record<Language, TranslationDictionary> = {
       demoAdmin: 'Demo Admin Login',
       signingIn: 'Signing in...',
     },
+    profile: {
+      title: 'Citizen Profile',
+      subtitle: 'Account details, community reports, and visited cool routes',
+      tabAccount: 'Account Info',
+      tabReports: 'My Reports',
+      tabRoutes: 'Route History',
+      nameLabel: 'Full Name',
+      emailLabel: 'Email Address',
+      passwordLabel: 'Account Password',
+      showPassword: 'Show',
+      hidePassword: 'Hide',
+      roleLabel: 'User Role',
+      memberSince: 'Member Since',
+      noReportsTitle: 'No Reports Filed Yet',
+      noReportsDesc: 'You have not submitted any community hazard reports yet. Use the "Report Hazard" button to flag unshaded spots or smog sources.',
+      reportedHazardsCount: 'community hazards reported',
+      noRoutesTitle: 'No Route History',
+      noRoutesDesc: 'You have not navigated any routes yet. Start navigation on the Cool-Route Map to log your shaded journeys.',
+      visitedRoutesCount: 'cool routes visited',
+      shadedCoverage: 'Shade Coverage',
+      heatAvoided: 'Heat Reduction',
+      closeBtn: 'Close Profile',
+      status: 'Status',
+      completed: 'Completed',
+      mins: 'mins',
+      km: 'km',
+    },
   },
   hi: {
     common: {
@@ -700,6 +754,33 @@ export const translations: Record<Language, TranslationDictionary> = {
       demoAdmin: 'प्रशासक डेमो लॉग इन',
       signingIn: 'लॉग इन हो रहा है...',
     },
+    profile: {
+      title: 'नागरिक प्रोफ़ाइल',
+      subtitle: 'खाता विवरण, आपकी दर्ज रिपोर्ट और भ्रमण किए गए शीतल मार्ग',
+      tabAccount: 'खाता विवरण',
+      tabReports: 'मेरी रिपोर्ट',
+      tabRoutes: 'मार्ग इतिहास',
+      nameLabel: 'पूरा नाम',
+      emailLabel: 'ईमेल पता',
+      passwordLabel: 'खाता पासवर्ड',
+      showPassword: 'देखें',
+      hidePassword: 'छिपाएं',
+      roleLabel: 'उपयोगकर्ता भूमिका',
+      memberSince: 'सदस्यता प्रारंभ',
+      noReportsTitle: 'कोई रिपोर्ट दर्ज नहीं',
+      noReportsDesc: 'आपने अभी तक कोई खतरा रिपोर्ट दर्ज नहीं की है। धूप वाले हॉटस्पॉट या प्रदूषण की सूचना देने के लिए "खतरा रिपोर्ट करें" का उपयोग करें।',
+      reportedHazardsCount: 'सामुदायिक खतरे दर्ज किए गए',
+      noRoutesTitle: 'कोई मार्ग इतिहास नहीं',
+      noRoutesDesc: 'आपने अभी तक कोई मार्ग भ्रमण नहीं किया है। अपनी छायादार यात्राओं को दर्ज करने के लिए शीतल-मार्ग मानचित्र पर नेविगेशन शुरू करें।',
+      visitedRoutesCount: 'शीतल मार्ग भ्रमण किए',
+      shadedCoverage: 'छाया आवरण',
+      heatAvoided: 'तापमान में कमी',
+      closeBtn: 'प्रोफ़ाइल बंद करें',
+      status: 'स्थिति',
+      completed: 'संपन्न',
+      mins: 'मिनट',
+      km: 'किमी',
+    },
   },
   mr: {
     common: {
@@ -936,6 +1017,33 @@ export const translations: Record<Language, TranslationDictionary> = {
       demoCitizen: 'नागरिक डेमो लॉग इन',
       demoAdmin: 'प्रशासक डेमो लॉग इन',
       signingIn: 'प्रवेश करत आहे...',
+    },
+    profile: {
+      title: 'नागरिक प्रोफाइल',
+      subtitle: 'खाते तपशील, आपल्या नोंदवलेल्या तक्रारी आणि भेट दिलेले सावलीचे मार्ग',
+      tabAccount: 'खाते माहिती',
+      tabReports: 'माझ्या तक्रारी',
+      tabRoutes: 'मार्ग इतिहास',
+      nameLabel: 'पूर्ण नाव',
+      emailLabel: 'ईमेल पत्ता',
+      passwordLabel: 'खाते पासवर्ड',
+      showPassword: 'पहा',
+      hidePassword: 'लपवा',
+      roleLabel: 'वापरकर्ता भूमिका',
+      memberSince: 'नोंदणी दिनांक',
+      noReportsTitle: 'कोणतीही तक्रार नोंदवलेली नाही',
+      noReportsDesc: 'तुम्ही अद्याप कोणतीही धोका किंवा समस्या नोंदवलेली नाही. तीव्र उन्हाचे ठिकाण किंवा धूर नोंदवण्यासाठी "धोका नोंदवा" वापरा.',
+      reportedHazardsCount: 'नागरिक तक्रारी नोंदवल्या',
+      noRoutesTitle: 'कोणताही मार्ग इतिहास नाही',
+      noRoutesDesc: 'तुम्ही अद्याप कोणताही मार्ग वापरलेला नाही. सावलीच्या मार्गांची नोंद ठेवण्यासाठी कूल-रूट नकाशावर नेव्हिगेशन सुरू करा.',
+      visitedRoutesCount: 'सावलीचे मार्ग वापरले',
+      shadedCoverage: 'सावलीचे प्रमाण',
+      heatAvoided: 'उष्णतेत घट',
+      closeBtn: 'प्रोफाइल बंद करा',
+      status: 'स्थिती',
+      completed: 'पूर्ण झाले',
+      mins: 'मिनिटे',
+      km: 'किमी',
     },
   },
 };
