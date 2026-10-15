@@ -15,6 +15,7 @@ import {
   Mail,
   MapPin,
   Navigation,
+  Pencil,
   ShieldCheck,
   ThumbsUp,
   Trees,
@@ -36,8 +37,10 @@ export function UserProfileModal() {
     visitedRoutes,
     setIsReportModalOpen,
     selectedCity,
+    setSelectedCity,
+    showToast,
   } = useAppState();
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { t, language } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<'account' | 'reports' | 'routes'>('account');
@@ -51,6 +54,52 @@ export function UserProfileModal() {
   const userRole = user?.role === 'admin' ? t.common.admin : t.common.citizen;
   const memberSince = user?.memberSince || 'September 2026';
   const userCity = user?.city || selectedCity || 'Delhi';
+
+  // Password edit state
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  // City edit state
+  const [isEditingCity, setIsEditingCity] = useState(false);
+  const [newCity, setNewCity] = useState(userCity);
+  const [isSavingCity, setIsSavingCity] = useState(false);
+
+  const handleSavePassword = async () => {
+    if (newPassword.trim().length < 6) {
+      setPasswordError(t.profile.passwordMinLength);
+      return;
+    }
+    setIsSavingPassword(true);
+    setPasswordError(null);
+    try {
+      const res = await updateProfile({ password: newPassword.trim() });
+      if (res.success) {
+        setIsEditingPassword(false);
+        setNewPassword('');
+        showToast(t.profile.passwordUpdated, 'success');
+      } else {
+        setPasswordError(res.message || 'Failed to update password');
+      }
+    } finally {
+      setIsSavingPassword(false);
+    }
+  };
+
+  const handleSaveCity = async () => {
+    setIsSavingCity(true);
+    try {
+      const res = await updateProfile({ city: newCity });
+      if (res.success) {
+        setSelectedCity(newCity);
+        setIsEditingCity(false);
+        showToast(t.profile.cityUpdated, 'success');
+      }
+    } finally {
+      setIsSavingCity(false);
+    }
+  };
 
   // Filter reports submitted by this user
   const userReports = useMemo(() => {
@@ -230,12 +279,17 @@ export function UserProfileModal() {
                 exit={{ opacity: 0, y: -8 }}
                 className="space-y-4"
               >
-                {/* Name Card */}
+                {/* 1. Name Card (Strictly Read-Only) */}
                 <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
-                      {t.profile.nameLabel}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
+                        {t.profile.nameLabel}
+                      </span>
+                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-[#94BDB2] border border-white/10">
+                        {t.profile.readOnlyBadge}
+                      </span>
+                    </div>
                     <button
                       onClick={() => handleCopy(userName, 'name')}
                       className="text-[#94BDB2] hover:text-white transition"
@@ -254,28 +308,31 @@ export function UserProfileModal() {
                   </div>
                 </div>
 
-                {/* Email Address Card */}
+                {/* 2. Email Address Card (Strictly Read-Only) */}
                 <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
-                      {t.profile.emailLabel}
-                    </span>
                     <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
+                        {t.profile.emailLabel}
+                      </span>
                       <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
                         ✓ Verified
                       </span>
-                      <button
-                        onClick={() => handleCopy(userEmail, 'email')}
-                        className="text-[#94BDB2] hover:text-white transition"
-                        title="Copy Email"
-                      >
-                        {copiedField === 'email' ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                      </button>
+                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-[#94BDB2] border border-white/10">
+                        {t.profile.readOnlyBadge}
+                      </span>
                     </div>
+                    <button
+                      onClick={() => handleCopy(userEmail, 'email')}
+                      className="text-[#94BDB2] hover:text-white transition"
+                      title="Copy Email"
+                    >
+                      {copiedField === 'email' ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                    </button>
                   </div>
                   <div className="mt-2 flex items-center gap-2.5 text-sm font-bold text-white">
                     <Mail className="h-4 w-4 text-emerald-400 shrink-0" />
@@ -283,60 +340,194 @@ export function UserProfileModal() {
                   </div>
                 </div>
 
-                {/* Password Card with Eye Reveal & Copy */}
+                {/* 3. Password Card with EDIT / SAVE / CANCEL */}
+                <div className="rounded-2xl border border-emerald-500/30 bg-[#0F2420] p-4 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
+                        {t.profile.passwordLabel}
+                      </span>
+                      {isEditingPassword && (
+                        <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                          {t.profile.editPassword}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {!isEditingPassword ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-[#081412] px-2 py-1 text-[11px] font-bold text-emerald-300 hover:text-white transition"
+                          >
+                            {showPassword ? (
+                              <>
+                                <EyeOff className="h-3 w-3" />
+                                <span>{t.profile.hidePassword}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Eye className="h-3 w-3" />
+                                <span>{t.profile.showPassword}</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(userPassword, 'password')}
+                            className="text-[#94BDB2] hover:text-white transition p-1"
+                            title="Copy Password"
+                          >
+                            {copiedField === 'password' ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsEditingPassword(true);
+                              setNewPassword('');
+                              setPasswordError(null);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300 hover:bg-cyan-500/20 transition ml-1"
+                          >
+                            <Pencil className="h-3 w-3" />
+                            <span>{t.profile.editBtn}</span>
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled={isSavingPassword}
+                            onClick={handleSavePassword}
+                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white shadow-glow hover:bg-emerald-500 transition disabled:opacity-60"
+                          >
+                            <Check className="h-3 w-3" />
+                            <span>{t.profile.saveBtn}</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isSavingPassword}
+                            onClick={() => {
+                              setIsEditingPassword(false);
+                              setPasswordError(null);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-[#94BDB2] hover:text-white transition"
+                          >
+                            <X className="h-3 w-3" />
+                            <span>{t.profile.cancelBtn}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {!isEditingPassword ? (
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 font-mono text-sm">
+                        <KeyRound className="h-4 w-4 text-emerald-400 shrink-0" />
+                        <span className="font-bold tracking-wider text-white">
+                          {showPassword ? userPassword : '••••••••••••'}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-[#94BDB2]">
+                        AES-256 / Bcrypt Hash
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder={t.profile.newPasswordPlaceholder}
+                        className="w-full rounded-xl border border-emerald-400/50 bg-[#081412] px-3.5 py-2 text-xs font-mono font-medium text-white focus:border-cyan-400 focus:outline-none"
+                        autoFocus
+                      />
+                      {passwordError && (
+                        <p className="text-[11px] font-bold text-red-400">
+                          {passwordError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. City Hub Card with EDIT / SAVE / CANCEL */}
                 <div className="rounded-2xl border border-emerald-500/30 bg-[#0F2420] p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#94BDB2]">
-                      {t.profile.passwordLabel}
+                      {t.profile.cityLabel}
                     </span>
-                    <div className="flex items-center gap-2">
+
+                    {!isEditingCity ? (
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-[#081412] px-2 py-1 text-[11px] font-bold text-emerald-300 hover:text-white transition"
+                        onClick={() => {
+                          setIsEditingCity(true);
+                          setNewCity(userCity);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-300 hover:bg-cyan-500/20 transition"
                       >
-                        {showPassword ? (
-                          <>
-                            <EyeOff className="h-3 w-3" />
-                            <span>{t.profile.hidePassword}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="h-3 w-3" />
-                            <span>{t.profile.showPassword}</span>
-                          </>
-                        )}
+                        <Pencil className="h-3 w-3" />
+                        <span>{t.profile.editBtn}</span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(userPassword, 'password')}
-                        className="text-[#94BDB2] hover:text-white transition p-1"
-                        title="Copy Password"
-                      >
-                        {copiedField === 'password' ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          disabled={isSavingCity}
+                          onClick={handleSaveCity}
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white shadow-glow hover:bg-emerald-500 transition disabled:opacity-60"
+                        >
+                          <Check className="h-3 w-3" />
+                          <span>{t.profile.saveBtn}</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isSavingCity}
+                          onClick={() => setIsEditingCity(false)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-[#94BDB2] hover:text-white transition"
+                        >
+                          <X className="h-3 w-3" />
+                          <span>{t.profile.cancelBtn}</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 font-mono text-sm">
-                      <KeyRound className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span className="font-bold tracking-wider text-white">
-                        {showPassword ? userPassword : '••••••••••••'}
+                  {!isEditingCity ? (
+                    <div className="mt-2 flex items-center gap-2 text-sm font-bold text-white">
+                      <MapPin className="h-4 w-4 text-cyan-400 shrink-0" />
+                      <span>{userCity}</span>
+                      <span className="text-[11px] font-normal text-[#94BDB2] ml-1">
+                        (Active Climate Telemetry Node)
                       </span>
                     </div>
-                    <span className="text-[10px] text-[#94BDB2]">
-                      AES-256 / Bcrypt Hash
-                    </span>
-                  </div>
+                  ) : (
+                    <div className="mt-3">
+                      <select
+                        value={newCity}
+                        onChange={(e) => setNewCity(e.target.value)}
+                        className="w-full rounded-xl border border-emerald-400/50 bg-[#081412] px-3.5 py-2 text-xs font-medium text-white focus:border-cyan-400 focus:outline-none"
+                      >
+                        {['Delhi', 'Mumbai', 'Bengaluru', 'Ahmedabad'].map((c) => (
+                          <option key={c} value={c} className="bg-[#081412] text-white">
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
-                {/* Role, City & Registration Date Grid */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {/* 5. Role & Registration Date Grid */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
                       {t.profile.roleLabel}
@@ -344,16 +535,6 @@ export function UserProfileModal() {
                     <div className="mt-1 flex items-center gap-1.5 text-xs font-bold text-white">
                       <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                       <span>{userRole}</span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
-                      City Hub
-                    </span>
-                    <div className="mt-1 flex items-center gap-1.5 text-xs font-bold text-white">
-                      <MapPin className="h-3.5 w-3.5 text-cyan-400" />
-                      <span>{userCity}</span>
                     </div>
                   </div>
 

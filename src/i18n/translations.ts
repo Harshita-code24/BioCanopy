@@ -218,11 +218,20 @@ export interface TranslationDictionary {
     emailAddress: string;
     password: string;
     assignedCity: string;
+    selectCityPlaceholder: string;
     btnSignIn: string;
     btnCreateAccount: string;
     demoCitizen: string;
     demoAdmin: string;
     signingIn: string;
+    signInWithGoogle: string;
+    orDivider: string;
+    welcomeEmailSent: string;
+    emailSentNotice: string;
+    emailSubject: string;
+    googleModalTitle: string;
+    googleModalDesc: string;
+    continueGoogleBtn: string;
   };
   profile: {
     title: string;
@@ -250,6 +259,17 @@ export interface TranslationDictionary {
     completed: string;
     mins: string;
     km: string;
+    cityLabel: string;
+    editBtn: string;
+    saveBtn: string;
+    cancelBtn: string;
+    editPassword: string;
+    editCity: string;
+    passwordUpdated: string;
+    cityUpdated: string;
+    passwordMinLength: string;
+    newPasswordPlaceholder: string;
+    readOnlyBadge: string;
   };
 }
 
@@ -484,11 +504,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       emailAddress: 'Email Address',
       password: 'Password',
       assignedCity: 'Assigned City',
+      selectCityPlaceholder: 'Select your primary city',
       btnSignIn: 'Sign In to BioCanopy',
       btnCreateAccount: 'Create BioCanopy Account',
       demoCitizen: 'Demo Citizen Login',
       demoAdmin: 'Demo Admin Login',
       signingIn: 'Signing in...',
+      signInWithGoogle: 'Sign in with Google',
+      orDivider: 'OR',
+      welcomeEmailSent: 'Welcome email delivered to',
+      emailSentNotice: 'Confirmation email dispatched to your inbox.',
+      emailSubject: '🌿 Welcome to BioCanopy — Sign-in Successful',
+      googleModalTitle: 'Sign in with Google',
+      googleModalDesc: 'Select your Google identity to access BioCanopy cool routes and air telemetry.',
+      continueGoogleBtn: 'Continue with Google',
     },
     profile: {
       title: 'Citizen Profile',
@@ -516,6 +545,17 @@ export const translations: Record<Language, TranslationDictionary> = {
       completed: 'Completed',
       mins: 'mins',
       km: 'km',
+      cityLabel: 'City Hub',
+      editBtn: 'Edit',
+      saveBtn: 'Save',
+      cancelBtn: 'Cancel',
+      editPassword: 'Edit Password',
+      editCity: 'Edit City',
+      passwordUpdated: 'Password updated successfully!',
+      cityUpdated: 'City updated successfully!',
+      passwordMinLength: 'Password must be at least 6 characters',
+      newPasswordPlaceholder: 'Enter new password (min. 6 chars)',
+      readOnlyBadge: 'Read-only',
     },
   },
   hi: {
@@ -748,11 +788,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       emailAddress: 'ईमेल पता',
       password: 'पासवर्ड',
       assignedCity: 'शहर चुनें',
+      selectCityPlaceholder: 'अपना मुख्य शहर चुनें',
       btnSignIn: 'बायोकैनोपी में लॉग इन करें',
       btnCreateAccount: 'नया खाता पंजीकृत करें',
       demoCitizen: 'नागरिक डेमो लॉग इन',
       demoAdmin: 'प्रशासक डेमो लॉग इन',
       signingIn: 'लॉग इन हो रहा है...',
+      signInWithGoogle: 'गूगल से साइन इन करें',
+      orDivider: 'या',
+      welcomeEmailSent: 'स्वागत ईमेल भेजा गया:',
+      emailSentNotice: 'आपके इनबॉक्स में पुष्टि ईमेल भेज दिया गया है।',
+      emailSubject: '🌿 बायोकैनोपी में आपका स्वागत है — सफल साइन इन',
+      googleModalTitle: 'गूगल से साइन इन करें',
+      googleModalDesc: 'बायोकैनोपी शीतल मार्ग और वायु टेलीमेट्री तक पहुँचने के लिए अपना गूगल खाता चुनें।',
+      continueGoogleBtn: 'गूगल के साथ जारी रखें',
     },
     profile: {
       title: 'नागरिक प्रोफ़ाइल',
@@ -780,6 +829,17 @@ export const translations: Record<Language, TranslationDictionary> = {
       completed: 'संपन्न',
       mins: 'मिनट',
       km: 'किमी',
+      cityLabel: 'शहर हब',
+      editBtn: 'संपादित करें',
+      saveBtn: 'सहेजें',
+      cancelBtn: 'रद्द करें',
+      editPassword: 'पासवर्ड बदलें',
+      editCity: 'शहर बदलें',
+      passwordUpdated: 'पासवर्ड सफलतापूर्वक बदल दिया गया!',
+      cityUpdated: 'शहर सफलतापूर्वक बदल दिया गया!',
+      passwordMinLength: 'पासवर्ड कम से कम ६ अक्षरों का होना चाहिए',
+      newPasswordPlaceholder: 'नया पासवर्ड दर्ज करें (न्यूनतम ६ अक्षर)',
+      readOnlyBadge: 'केवल पढ़ने योग्य',
     },
   },
   mr: {
@@ -1012,11 +1072,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       emailAddress: 'ईमेल पत्ता',
       password: 'पासवर्ड',
       assignedCity: 'शहर निवडा',
+      selectCityPlaceholder: 'आपले मुख्य शहर निवडा',
       btnSignIn: 'बायोकॅनॉपीमध्ये लॉग इन करा',
       btnCreateAccount: 'नवीन खाते तयार करा',
       demoCitizen: 'नागरिक डेमो लॉग इन',
       demoAdmin: 'प्रशासक डेमो लॉग इन',
       signingIn: 'प्रवेश करत आहे...',
+      signInWithGoogle: 'गुगलद्वारे साइन इन करा',
+      orDivider: 'किंवा',
+      welcomeEmailSent: 'स्वागत ईमेल पाठवला गेला:',
+      emailSentNotice: 'आपल्या इनबॉक्समध्ये पुष्टीकरण ईमेल पाठवला आहे.',
+      emailSubject: '🌿 बायोकॅनॉपीमध्ये आपले स्वागत आहे — यशस्वी साइन इन',
+      googleModalTitle: 'गुगलद्वारे साइन इन करा',
+      googleModalDesc: 'बायोकॅनॉपी सावलीचे मार्ग आणि हवा माहितीसाठी आपले गुगल खाते निवडा.',
+      continueGoogleBtn: 'गुगलसह पुढे जा',
     },
     profile: {
       title: 'नागरिक प्रोफाइल',
@@ -1044,6 +1113,17 @@ export const translations: Record<Language, TranslationDictionary> = {
       completed: 'पूर्ण झाले',
       mins: 'मिनिटे',
       km: 'किमी',
+      cityLabel: 'शहर केंद्र',
+      editBtn: 'बदला',
+      saveBtn: 'जतन करा',
+      cancelBtn: 'रद्द करा',
+      editPassword: 'पासवर्ड बदला',
+      editCity: 'शहर बदला',
+      passwordUpdated: 'पासवर्ड यशस्वीरीत्या बदलला!',
+      cityUpdated: 'शहर यशस्वीरीत्या बदलले!',
+      passwordMinLength: 'पासवर्ड किमान ६ अक्षरांचा असावा',
+      newPasswordPlaceholder: 'नवीन पासवर्ड टाका (किमान ६ अक्षरे)',
+      readOnlyBadge: 'केवळ वाचनासाठी',
     },
   },
 };

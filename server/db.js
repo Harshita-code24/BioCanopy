@@ -18,9 +18,17 @@ db.exec(`
     email TEXT UNIQUE NOT NULL COLLATE NOCASE,
     password TEXT NOT NULL,
     role TEXT DEFAULT 'citizen',
+    city TEXT DEFAULT 'Delhi',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// Ensure city column exists for existing databases
+try {
+  db.exec("ALTER TABLE users ADD COLUMN city TEXT DEFAULT 'Delhi'");
+} catch {
+  // column already exists
+}
 
 // Pre-seed default demo citizen and admin accounts if not already present
 try {
