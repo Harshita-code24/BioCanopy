@@ -71,7 +71,16 @@ export function UserAuthPage() {
         const res = await signup({ name, email, password, city });
         if (res.success) {
           setSelectedCity(city);
-          navigate('/dashboard');
+          const isAdmin = email.toLowerCase().includes('admin');
+          if (!isAdmin) {
+            setEmailSentAlert(email);
+            showToast(`📧 ${copy.welcomeEmailSent} ${email}`, 'success');
+            setTimeout(() => {
+              navigate('/dashboard');
+            }, 1800);
+          } else {
+            navigate('/admin');
+          }
         } else {
           setErrorMessage(res.message || 'Failed to create account.');
         }
@@ -263,6 +272,26 @@ export function UserAuthPage() {
             >
               <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
               <span>{errorMessage}</span>
+            </motion.div>
+          )}
+
+          {/* Email Sent Confirmation Alert (Standard Signup) */}
+          {emailSentAlert && !showGoogleModal && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4 rounded-2xl border border-emerald-500/50 bg-emerald-950/80 p-4 text-xs backdrop-blur-md"
+            >
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5" />
+                <div>
+                  <p className="font-bold text-white">✓ {copy.welcomeEmailSent}</p>
+                  <p className="mt-0.5 font-mono text-[11px] text-emerald-300">
+                    {emailSentAlert}
+                  </p>
+                  <p className="mt-1 text-[11px] text-[#94BDB2]">{copy.emailSentNotice}</p>
+                </div>
+              </div>
             </motion.div>
           )}
 

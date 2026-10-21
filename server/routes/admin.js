@@ -174,4 +174,44 @@ router.delete('/reports/:id', (req, res) => {
   }
 });
 
+// GET /api/admin/users - Get all registered users for admin directory
+router.get('/users', (req, res) => {
+  try {
+    const stmt = db.prepare('SELECT id, name, email, role, city, created_at FROM users ORDER BY created_at DESC');
+    const users = stmt.all();
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching admin users:', err);
+    res.status(500).json({ message: 'Failed to fetch users.' });
+  }
+});
+
+// DELETE /api/admin/users/:id - Delete a user account from database
+router.delete('/users/:id', (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID.' });
+    }
+
+    const checkStmt = db.prepare('SELECT id, role FROM users WHERE id = ?');
+    const targetUser = checkStmt.get(userId);
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(403).json({ message: 'Root admin account cannot be deleted.' });
+    }
+
+    const deleteStmt = db.prepare('DELETE FROM users WHERE id = ?');
+    deleteStmt.run(userId);
+
+    res.json({ message: 'User account removed successfully.', userId });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ message: 'Failed to delete user.' });
+  }
+});
+
 export default router;

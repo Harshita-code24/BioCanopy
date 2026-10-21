@@ -1,10 +1,12 @@
 import {
   AlertTriangle,
+  Calendar,
   CheckCircle2,
   Clock,
   Filter,
   Flame,
   Layers,
+  Mail,
   MapPin,
   RefreshCw,
   Search,
@@ -40,6 +42,15 @@ type AdminReport = {
   createdAt?: string;
 };
 
+type AdminUser = {
+  id: number | string;
+  name: string;
+  email: string;
+  role: 'citizen' | 'admin';
+  city?: string;
+  created_at?: string;
+};
+
 type AdminStats = {
   totalReports: number;
   pendingReports: number;
@@ -54,7 +65,9 @@ export function AdminPage() {
   const { t, language } = useTranslation();
   const copy = t.admin;
 
+  const [adminTab, setAdminTab] = useState<'reports' | 'users'>('reports');
   const [reports, setReports] = useState<AdminReport[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [stats, setStats] = useState<AdminStats>({
     totalReports: 0,
     pendingReports: 0,
@@ -67,14 +80,17 @@ export function AdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterUserRole, setFilterUserRole] = useState<string>('All');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
 
-  // Fetch reports and stats from backend
+  // Fetch reports, stats, and users from backend
   const fetchAdminData = async () => {
     setIsLoading(true);
     try {
-      const [reportsRes, statsRes] = await Promise.all([
+      const [reportsRes, statsRes, usersRes] = await Promise.all([
         fetch('http://localhost:5000/api/admin/reports'),
         fetch('http://localhost:5000/api/admin/stats'),
+        fetch('http://localhost:5000/api/admin/users'),
       ]);
 
       if (reportsRes.ok) {
@@ -86,11 +102,55 @@ export function AdminPage() {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
+
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+      } else {
+        // Fallback for offline mode
+        populateFallbackUsers();
+      }
     } catch (err) {
       console.warn('Could not connect to admin backend, using offline fallback:', err);
+      populateFallbackUsers();
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const populateFallbackUsers = () => {
+    const currentSessionUser = user
+      ? [
+          {
+            id: user.id || 101,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            city: user.city || 'Delhi',
+            created_at: new Date().toISOString(),
+          },
+        ]
+      : [];
+
+    setUsers([
+      ...currentSessionUser,
+      {
+        id: 1,
+        name: 'Neha Resident',
+        email: 'neha.resident@biocanopy.demo',
+        role: 'citizen',
+        city: 'Delhi',
+        created_at: '2026-09-15T10:00:00Z',
+      },
+      {
+        id: 2,
+        name: 'Admin (BioCanopy Team)',
+        email: 'admin@biocanopy.demo',
+        role: 'admin',
+        city: 'Delhi',
+        created_at: '2026-09-01T08:00:00Z',
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -152,6 +212,29 @@ export function AdminPage() {
     }
   };
 
+  // Handle user deletion
+  const handleDeleteUser = async (userId: number | string) => {
+    if (!window.confirm(copy.deleteUserConfirm)) {
+      return;
+    }
+
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        showToast(copy.userDeletedToast, 'info');
+        const statsRes = await fetch('http://localhost:5000/api/admin/stats');
+        if (statsRes.ok) setStats(await statsRes.json());
+      }
+    } catch (err) {
+      console.error('Failed to delete user on server:', err);
+    }
+  };
+
   // Filtered reports
   const filteredReports = useMemo(() => {
     return reports.filter((r) => {
@@ -167,6 +250,21 @@ export function AdminPage() {
       return matchCity && matchStatus && matchCategory && matchSearch;
     });
   }, [reports, filterCity, filterStatus, filterCategory, searchQuery]);
+
+  // Filtered users
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      const matchCity = filterCity === 'All' || u.city === filterCity;
+      const matchRole = filterUserRole === 'All' || u.role === filterUserRole;
+      const matchSearch =
+        userSearchQuery.trim() === '' ||
+        u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        (u.city && u.city.toLowerCase().includes(userSearchQuery.toLowerCase()));
+
+      return matchCity && matchRole && matchSearch;
+    });
+  }, [users, filterCity, filterUserRole, userSearchQuery]);
 
   return (
     <div className="space-y-6">
@@ -191,19 +289,29 @@ export function AdminPage() {
             </p>
           </div>
 
-          <button
-            onClick={fetchAdminData}
-            disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-2xl bg-cyan-600 px-5 py-3 text-xs font-bold text-white shadow-glow hover:bg-cyan-500 transition active:scale-95 shrink-0"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>{language === 'hi' ? 'क्यू रीफ्रेश करें' : language === 'mr' ? 'यादी रीफ्रेश करा' : 'Refresh Live Queue'}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={fetchAdminData}
+              disabled={isLoading}
+              className="inline-flex items-center gap-2 rounded-2xl bg-cyan-600 px-5 py-3 text-xs font-bold text-white shadow-glow hover:bg-cyan-500 transition active:scale-95 shrink-0"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>{language === 'hi' ? 'डेटा रीफ्रेश करें' : language === 'mr' ? 'डेटा रीफ्रेश करा' : 'Refresh Live Queue'}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Top High-Level KPI Summary Cards */}
+        {/* Top High-Level KPI Summary Cards (Interactive navigation) */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5 border-t border-cyan-500/20 pt-6">
-          <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5">
+          <button
+            type="button"
+            onClick={() => setAdminTab('reports')}
+            className={`rounded-2xl border p-3.5 text-left transition ${
+              adminTab === 'reports'
+                ? 'border-emerald-400/60 bg-emerald-950/40 shadow-glow'
+                : 'border-emerald-500/20 bg-[#0F2420] hover:border-emerald-400/30'
+            }`}
+          >
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
               {copy.kpiTotalReports}
             </span>
@@ -211,7 +319,7 @@ export function AdminPage() {
               <span className="text-2xl font-black text-white">{stats.totalReports}</span>
               <span className="text-xs text-emerald-400 font-bold">{language === 'hi' ? 'दर्ज' : language === 'mr' ? 'नोंद' : 'Logged'}</span>
             </div>
-          </div>
+          </button>
 
           <div className="rounded-2xl border border-amber-500/30 bg-[#0F2420] p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
@@ -243,234 +351,488 @@ export function AdminPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-emerald-500/20 bg-[#0F2420] p-3.5 col-span-2 sm:col-span-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#94BDB2]">
-              {copy.kpiCitizens}
+          {/* KPI Citizens Card - Clicking switches directly to Registered Users Tab */}
+          <button
+            type="button"
+            onClick={() => setAdminTab('users')}
+            className={`rounded-2xl border p-3.5 col-span-2 sm:col-span-1 text-left transition ${
+              adminTab === 'users'
+                ? 'border-cyan-400/60 bg-cyan-950/40 shadow-glow'
+                : 'border-emerald-500/20 bg-[#0F2420] hover:border-cyan-400/40'
+            }`}
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center justify-between">
+              <span>{copy.kpiCitizens}</span>
+              <span className="text-xs">➔</span>
             </span>
             <div className="mt-1 flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white">{stats.totalUsers}</span>
+              <span className="text-2xl font-black text-white">{stats.totalUsers || users.length}</span>
               <span className="text-xs text-cyan-400 font-bold">{t.common.citizen}</span>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-4 rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          {/* Search box */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-emerald-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={copy.searchPlaceholder}
-              className="w-full rounded-xl border border-emerald-500/30 bg-[#081412] py-2.5 pl-10 pr-4 text-xs font-medium text-white placeholder-[#94BDB2]/50 focus:border-cyan-400 focus:outline-none"
-            />
-          </div>
+      {/* Main Tab Switcher: Hazard Reports vs Registered Citizens */}
+      <div className="flex gap-2 rounded-2xl border border-cyan-500/20 bg-[#081412] p-1.5">
+        <button
+          type="button"
+          onClick={() => setAdminTab('reports')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
+            adminTab === 'reports'
+              ? 'bg-cyan-600 text-white shadow-glow'
+              : 'text-[#94BDB2] hover:text-white'
+          }`}
+        >
+          <AlertTriangle className="h-4 w-4" />
+          <span>{copy.tabReports}</span>
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-mono">
+            {reports.length}
+          </span>
+        </button>
 
-          {/* Quick Filter Counts */}
-          <div className="flex items-center gap-2 text-xs text-[#94BDB2]">
-            <span>{language === 'hi' ? 'दिखा रहे हैं' : language === 'mr' ? 'दाखवत आहे' : 'Showing'}</span>
-            <strong className="text-white">{filteredReports.length}</strong>
-            <span>{language === 'hi' ? `कुल ${reports.length} रिपोर्ट में से` : language === 'mr' ? `एकूण ${reports.length} तक्रारींमधून` : `of ${reports.length} total reports`}</span>
-          </div>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-3 border-t border-emerald-500/10 pt-3">
-          {/* City Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterCity}:</span>
-            <div className="flex flex-wrap gap-1">
-              {['All', 'Delhi', 'Mumbai', 'Bengaluru', 'Ahmedabad'].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setFilterCity(c)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                    filterCity === c
-                      ? 'bg-cyan-600 text-white shadow-glow'
-                      : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
-                  }`}
-                >
-                  {c === 'All' ? copy.allCities : c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5 ml-auto">
-            <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterStatus}:</span>
-            <div className="flex flex-wrap gap-1">
-              {[
-                { key: 'All', label: copy.allStatuses },
-                { key: 'Pending Review', label: t.reports.statusPending },
-                { key: 'Reviewed', label: t.reports.statusReviewed },
-                { key: 'Task Dispatched', label: t.reports.statusDispatched },
-                { key: 'Resolved', label: language === 'hi' ? 'समाधान संपन्न' : language === 'mr' ? 'निवारण झाले' : 'Resolved' },
-              ].map((st) => (
-                <button
-                  key={st.key}
-                  onClick={() => setFilterStatus(st.key)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                    filterStatus === st.key
-                      ? 'bg-emerald-600 text-white shadow-glow'
-                      : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
-                  }`}
-                >
-                  {st.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setAdminTab('users')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition ${
+            adminTab === 'users'
+              ? 'bg-cyan-600 text-white shadow-glow'
+              : 'text-[#94BDB2] hover:text-white'
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          <span>{copy.tabUsers}</span>
+          <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-mono">
+            {users.length}
+          </span>
+        </button>
       </div>
 
-      {/* Reports Triage Feed */}
-      <div className="space-y-4">
-        {filteredReports.length === 0 ? (
-          <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-12 text-center text-[#94BDB2]">
-            <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400 opacity-60" />
-            <h3 className="mt-3 text-base font-bold text-white">{copy.noReportsFound}</h3>
-            <p className="mt-1 text-xs">
-              {language === 'hi'
-                ? 'वर्तमान फ़िल्टर के अनुसार सभी नागरिक रिपोर्ट सत्यापित अथवा हल हो चुकी हैं।'
-                : language === 'mr'
-                ? 'निवडलेल्या निकषानुसार सर्व नागरिक तक्रारी तपासल्या किंवा सोडवल्या गेल्या आहेत.'
-                : 'All community hazard reports matching the current filters have been resolved or triaged.'}
-            </p>
-          </div>
-        ) : (
-          filteredReports.map((report) => (
-            <div
-              key={report.id}
-              className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card transition hover:border-cyan-400/40"
-            >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                {/* Left: Hazard details & Reporter Info */}
-                <div className="flex items-start gap-3.5">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
-                      report.category === 'Unshaded Hotspot'
-                        ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40'
-                        : report.category === 'Illegal Burning'
-                        ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40'
-                        : report.category === 'Construction Dust'
-                        ? 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/40'
-                        : 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
-                    }`}
-                  >
-                    {report.category === 'Illegal Burning' ? (
-                      <Flame className="h-5 w-5" />
-                    ) : report.category === 'Construction Dust' ? (
-                      <Wind className="h-5 w-5" />
-                    ) : report.category === 'No Tree Cover' ? (
-                      <Trees className="h-5 w-5" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5" />
-                    )}
-                  </div>
+      {/* ===================== VIEW 1: HAZARD REPORTS ===================== */}
+      {adminTab === 'reports' && (
+        <div className="space-y-4">
+          {/* Filter and Search Bar for Reports */}
+          <div className="flex flex-col gap-4 rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              {/* Search box */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3.5 top-3 h-4 w-4 text-emerald-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={copy.searchPlaceholder}
+                  className="w-full rounded-xl border border-emerald-500/30 bg-[#081412] py-2.5 pl-10 pr-4 text-xs font-medium text-white placeholder-[#94BDB2]/50 focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
 
-                  <div>
-                    {/* Reporter Pill & City Badge */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">
-                        {report.id} · {report.city}
-                      </span>
-                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-[#ECFDF5]">
-                        {report.category}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-300 ring-1 ring-cyan-500/30">
-                        <User className="h-3 w-3 text-cyan-400" />
-                        <span>{language === 'hi' ? 'नागरिक:' : language === 'mr' ? 'नागरिक:' : 'Reported by:'} <strong>{report.reporterName}</strong> ({report.reporterEmail})</span>
-                      </span>
-                    </div>
+              {/* Quick Filter Counts */}
+              <div className="flex items-center gap-2 text-xs text-[#94BDB2]">
+                <span>{language === 'hi' ? 'दिखा रहे हैं' : language === 'mr' ? 'दाखवत आहे' : 'Showing'}</span>
+                <strong className="text-white">{filteredReports.length}</strong>
+                <span>{language === 'hi' ? `कुल ${reports.length} रिपोर्ट में से` : language === 'mr' ? `एकूण ${reports.length} तक्रारींमधून` : `of ${reports.length} total reports`}</span>
+              </div>
+            </div>
 
-                    <h3 className="mt-1 text-sm font-bold text-white">
-                      {report.locationName}
-                    </h3>
-                    <p className="mt-1 text-xs text-[#94BDB2] max-w-3xl leading-relaxed">
-                      {report.description}
-                    </p>
-
-                    <div className="mt-2.5 flex flex-wrap items-center gap-4 text-[11px] text-[#94BDB2]/80">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5 text-emerald-400" />
-                        {report.submittedAt}
-                      </span>
-                      <span className="flex items-center gap-1 text-emerald-300 font-bold">
-                        <ThumbsUp className="h-3.5 w-3.5" />
-                        {report.upvotes} {language === 'hi' ? 'सामुदायिक समर्थन' : language === 'mr' ? 'नागरिक मते' : 'Community Upvotes'}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5 text-cyan-400" />
-                        GPS: {report.coordinates[0].toFixed(4)}, {report.coordinates[1].toFixed(4)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Status Pill & Action Buttons */}
-                <div className="flex flex-col items-start lg:items-end gap-3 shrink-0 border-t border-emerald-500/10 pt-3 lg:border-t-0 lg:pt-0">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold border ${
-                      report.status === 'Resolved'
-                        ? 'border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
-                        : report.status === 'Task Dispatched'
-                        ? 'border-cyan-500/40 bg-cyan-500/20 text-cyan-300'
-                        : report.status === 'Reviewed'
-                        ? 'border-blue-500/40 bg-blue-500/20 text-blue-300'
-                        : 'border-amber-500/40 bg-amber-500/20 text-amber-300'
-                    }`}
-                  >
-                    ● {report.status}
-                  </span>
-
-                  {/* Quick Action Progression Buttons */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {report.status === 'Pending Review' && (
-                      <button
-                        onClick={() => handleStatusChange(report.id, 'Reviewed')}
-                        className="rounded-xl bg-blue-600/80 hover:bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
-                      >
-                        {copy.btnReview}
-                      </button>
-                    )}
-
-                    {(report.status === 'Pending Review' || report.status === 'Reviewed') && (
-                      <button
-                        onClick={() => handleStatusChange(report.id, 'Task Dispatched')}
-                        className="rounded-xl bg-cyan-600 hover:bg-cyan-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-glow transition active:scale-95"
-                      >
-                        {copy.btnDispatch} 🚀
-                      </button>
-                    )}
-
-                    {report.status !== 'Resolved' && (
-                      <button
-                        onClick={() => handleStatusChange(report.id, 'Resolved')}
-                        className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
-                      >
-                        {copy.btnResolve} ✅
-                      </button>
-                    )}
-
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center gap-3 border-t border-emerald-500/10 pt-3">
+              {/* City Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterCity}:</span>
+                <div className="flex flex-wrap gap-1">
+                  {['All', 'Delhi', 'Mumbai', 'Bengaluru', 'Ahmedabad'].map((c) => (
                     <button
-                      onClick={() => handleDeleteReport(report.id)}
-                      className="rounded-xl border border-red-500/30 bg-red-950/40 hover:bg-red-900/60 p-1.5 text-red-400 hover:text-red-300 transition"
-                      title={copy.btnDelete}
+                      key={c}
+                      onClick={() => setFilterCity(c)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+                        filterCity === c
+                          ? 'bg-cyan-600 text-white shadow-glow'
+                          : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
+                      }`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {c === 'All' ? copy.allCities : c}
                     </button>
-                  </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-1.5 ml-auto">
+                <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterStatus}:</span>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { key: 'All', label: copy.allStatuses },
+                    { key: 'Pending Review', label: t.reports.statusPending },
+                    { key: 'Reviewed', label: t.reports.statusReviewed },
+                    { key: 'Task Dispatched', label: t.reports.statusDispatched },
+                    { key: 'Resolved', label: language === 'hi' ? 'समाधान संपन्न' : language === 'mr' ? 'निवारण झाले' : 'Resolved' },
+                  ].map((st) => (
+                    <button
+                      key={st.key}
+                      onClick={() => setFilterStatus(st.key)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+                        filterStatus === st.key
+                          ? 'bg-emerald-600 text-white shadow-glow'
+                          : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          </div>
+
+          {/* Reports Triage Feed */}
+          <div className="space-y-4">
+            {filteredReports.length === 0 ? (
+              <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-12 text-center text-[#94BDB2]">
+                <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400 opacity-60" />
+                <h3 className="mt-3 text-base font-bold text-white">{copy.noReportsFound}</h3>
+                <p className="mt-1 text-xs">
+                  {language === 'hi'
+                    ? 'वर्तमान फ़िल्टर के अनुसार सभी नागरिक रिपोर्ट सत्यापित अथवा हल हो चुकी हैं।'
+                    : language === 'mr'
+                    ? 'निवडलेल्या निकषानुसार सर्व नागरिक तक्रारी तपासल्या किंवा सोडवल्या गेल्या आहेत.'
+                    : 'All community hazard reports matching the current filters have been resolved or triaged.'}
+                </p>
+              </div>
+            ) : (
+              filteredReports.map((report) => (
+                <div
+                  key={report.id}
+                  className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card transition hover:border-cyan-400/40"
+                >
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    {/* Left: Hazard details & Reporter Info */}
+                    <div className="flex items-start gap-3.5">
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
+                          report.category === 'Unshaded Hotspot'
+                            ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40'
+                            : report.category === 'Illegal Burning'
+                            ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40'
+                            : report.category === 'Construction Dust'
+                            ? 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/40'
+                            : 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
+                        }`}
+                      >
+                        {report.category === 'Illegal Burning' ? (
+                          <Flame className="h-5 w-5" />
+                        ) : report.category === 'Construction Dust' ? (
+                          <Wind className="h-5 w-5" />
+                        ) : report.category === 'No Tree Cover' ? (
+                          <Trees className="h-5 w-5" />
+                        ) : (
+                          <AlertTriangle className="h-5 w-5" />
+                        )}
+                      </div>
+
+                      <div>
+                        {/* Reporter Pill & City Badge */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                            {report.id} · {report.city}
+                          </span>
+                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-[#ECFDF5]">
+                            {report.category}
+                          </span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-300 ring-1 ring-cyan-500/30">
+                            <User className="h-3 w-3 text-cyan-400" />
+                            <span>{language === 'hi' ? 'नागरिक:' : language === 'mr' ? 'नागरिक:' : 'Reported by:'} <strong>{report.reporterName}</strong> ({report.reporterEmail})</span>
+                          </span>
+                        </div>
+
+                        <h3 className="mt-1 text-sm font-bold text-white">
+                          {report.locationName}
+                        </h3>
+                        <p className="mt-1 text-xs text-[#94BDB2] max-w-3xl leading-relaxed">
+                          {report.description}
+                        </p>
+
+                        <div className="mt-2.5 flex flex-wrap items-center gap-4 text-[11px] text-[#94BDB2]/80">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5 text-emerald-400" />
+                            {report.submittedAt}
+                          </span>
+                          <span className="flex items-center gap-1 text-emerald-300 font-bold">
+                            <ThumbsUp className="h-3.5 w-3.5" />
+                            {report.upvotes} {language === 'hi' ? 'सामुदायिक समर्थन' : language === 'mr' ? 'नागरिक मते' : 'Community Upvotes'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-cyan-400" />
+                            GPS: {report.coordinates[0].toFixed(4)}, {report.coordinates[1].toFixed(4)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Status Pill & Action Buttons */}
+                    <div className="flex flex-col items-start lg:items-end gap-3 shrink-0 border-t border-emerald-500/10 pt-3 lg:border-t-0 lg:pt-0">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold border ${
+                          report.status === 'Resolved'
+                            ? 'border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
+                            : report.status === 'Task Dispatched'
+                            ? 'border-cyan-500/40 bg-cyan-500/20 text-cyan-300'
+                            : report.status === 'Reviewed'
+                            ? 'border-blue-500/40 bg-blue-500/20 text-blue-300'
+                            : 'border-amber-500/40 bg-amber-500/20 text-amber-300'
+                        }`}
+                      >
+                        ● {report.status}
+                      </span>
+
+                      {/* Quick Action Progression Buttons */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {report.status === 'Pending Review' && (
+                          <button
+                            onClick={() => handleStatusChange(report.id, 'Reviewed')}
+                            className="rounded-xl bg-blue-600/80 hover:bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
+                          >
+                            {copy.btnReview}
+                          </button>
+                        )}
+
+                        {(report.status === 'Pending Review' || report.status === 'Reviewed') && (
+                          <button
+                            onClick={() => handleStatusChange(report.id, 'Task Dispatched')}
+                            className="rounded-xl bg-cyan-600 hover:bg-cyan-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-glow transition active:scale-95"
+                          >
+                            {copy.btnDispatch} 🚀
+                          </button>
+                        )}
+
+                        {report.status !== 'Resolved' && (
+                          <button
+                            onClick={() => handleStatusChange(report.id, 'Resolved')}
+                            className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-[11px] font-bold text-white transition active:scale-95"
+                          >
+                            {copy.btnResolve} ✅
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => handleDeleteReport(report.id)}
+                          className="rounded-xl border border-red-500/30 bg-red-950/40 hover:bg-red-900/60 p-1.5 text-red-400 hover:text-red-300 transition"
+                          title={copy.btnDelete}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===================== VIEW 2: REGISTERED CITIZENS DIRECTORY ===================== */}
+      {adminTab === 'users' && (
+        <div className="space-y-4">
+          {/* User Directory Filter & Search Header */}
+          <div className="rounded-3xl border border-cyan-500/20 bg-[#0F2420] p-5 shadow-card space-y-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <Users className="h-5 w-5 text-cyan-400" />
+                  <span>{copy.usersDirectoryTitle}</span>
+                </h2>
+                <p className="text-xs text-[#94BDB2] mt-0.5">
+                  {copy.usersDirectorySubtitle}
+                </p>
+              </div>
+
+              {/* User search box */}
+              <div className="relative w-full md:w-72">
+                <Search className="absolute left-3.5 top-3 h-4 w-4 text-cyan-400" />
+                <input
+                  type="text"
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  placeholder={copy.searchUsersPlaceholder}
+                  className="w-full rounded-xl border border-cyan-500/30 bg-[#081412] py-2 pl-10 pr-4 text-xs font-medium text-white placeholder-[#94BDB2]/50 focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Filter Pills for Users (City + Role) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-cyan-500/10 pt-3">
+              {/* City Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.filterCity}:</span>
+                <div className="flex flex-wrap gap-1">
+                  {['All', 'Delhi', 'Mumbai', 'Bengaluru', 'Ahmedabad'].map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setFilterCity(c)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+                        filterCity === c
+                          ? 'bg-cyan-600 text-white shadow-glow'
+                          : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-cyan-500/20'
+                      }`}
+                    >
+                      {c === 'All' ? copy.allCities : c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Role Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold uppercase text-[#94BDB2]">{copy.userRoleCol}:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: 'All', label: 'All' },
+                    { key: 'citizen', label: t.common.citizen },
+                    { key: 'admin', label: t.common.admin },
+                  ].map((r) => (
+                    <button
+                      key={r.key}
+                      onClick={() => setFilterUserRole(r.key)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+                        filterUserRole === r.key
+                          ? 'bg-emerald-600 text-white shadow-glow'
+                          : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
+                      }`}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Users Table / Directory List */}
+          {filteredUsers.length === 0 ? (
+            <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-12 text-center text-[#94BDB2]">
+              <Users className="mx-auto h-12 w-12 text-cyan-400 opacity-60 mb-2" />
+              <h3 className="text-sm font-bold text-white">{copy.noUsersFound}</h3>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-3xl border border-cyan-500/20 bg-[#0F2420] shadow-card">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-cyan-500/20 bg-[#081412]/80 uppercase tracking-wider text-[10px] text-[#94BDB2]">
+                    <tr>
+                      <th className="px-5 py-3.5">{copy.userNameCol}</th>
+                      <th className="px-5 py-3.5">{copy.userEmailCol}</th>
+                      <th className="px-5 py-3.5">{copy.userCityCol}</th>
+                      <th className="px-5 py-3.5">{copy.userRoleCol}</th>
+                      <th className="px-5 py-3.5">{copy.userRegisteredCol}</th>
+                      <th className="px-5 py-3.5 text-right">{copy.userActionsCol}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-emerald-500/10">
+                    {filteredUsers.map((u) => {
+                      const isCurrentUser = user?.email?.toLowerCase() === u.email.toLowerCase();
+                      return (
+                        <tr
+                          key={u.id}
+                          className="hover:bg-cyan-500/5 transition"
+                        >
+                          {/* Name + Avatar */}
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-xs font-black text-white shadow-sm ring-1 ring-emerald-400/30">
+                                {u.name
+                                  .split(' ')
+                                  .map((n) => n[0])
+                                  .slice(0, 2)
+                                  .join('')}
+                              </div>
+                              <div>
+                                <div className="font-bold text-white flex items-center gap-1.5">
+                                  <span>{u.name}</span>
+                                  {isCurrentUser && (
+                                    <span className="rounded-full bg-cyan-500/20 px-2 py-0.2 text-[9px] font-bold text-cyan-300 border border-cyan-500/40">
+                                      You
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-[#94BDB2]">
+                                  ID: usr-{u.id}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Email */}
+                          <td className="px-5 py-3.5 font-mono text-[11px] text-[#ECFDF5]">
+                            <div className="flex items-center gap-1.5">
+                              <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                              <span>{u.email}</span>
+                            </div>
+                          </td>
+
+                          {/* City */}
+                          <td className="px-5 py-3.5">
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-[#081412] px-2.5 py-1 text-[11px] font-bold text-cyan-300 border border-cyan-500/25">
+                              <MapPin className="h-3 w-3" />
+                              <span>{u.city || 'Delhi'}</span>
+                            </span>
+                          </td>
+
+                          {/* Role */}
+                          <td className="px-5 py-3.5">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border ${
+                                u.role === 'admin'
+                                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              }`}
+                            >
+                              {u.role === 'admin' ? t.common.admin : t.common.citizen}
+                            </span>
+                          </td>
+
+                          {/* Registered Timestamp */}
+                          <td className="px-5 py-3.5 text-[#94BDB2] text-[11px]">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-emerald-400" />
+                              <span>
+                                {u.created_at
+                                  ? new Date(u.created_at).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })
+                                  : 'September 2026'}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-5 py-3.5 text-right">
+                            {u.role !== 'admin' ? (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteUser(u.id)}
+                                className="rounded-xl border border-red-500/30 bg-red-950/40 hover:bg-red-900/60 p-2 text-red-400 hover:text-red-300 transition"
+                                title="Remove User"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-[#94BDB2]/60 italic">
+                                Protected
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

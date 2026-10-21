@@ -62,6 +62,8 @@ export type CityMetric = {
   city: string;
   state: string;
   aqi: number;
+  pm25?: number;
+  pm10?: number;
   temperature: number;
   feelsLike: number;
   humidity: number;

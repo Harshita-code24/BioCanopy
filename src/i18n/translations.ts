@@ -115,6 +115,18 @@ export interface TranslationDictionary {
     severe: string;
     criticalShortfall: string;
     moderate: string;
+    viewTempAqi: string;
+    viewPm: string;
+    viewThermalHumidity: string;
+    exportCsv: string;
+    exportJson: string;
+    multiCityCompare: string;
+    multiCityCompareDesc: string;
+    refreshData: string;
+    stationDetails: string;
+    loadingTrends: string;
+    interCityComparison: string;
+    downloadSuccess: string;
   };
   reports: {
     title: string;
@@ -208,6 +220,20 @@ export interface TranslationDictionary {
     statusUpdatedToast: string;
     reportDeletedToast: string;
     noReportsFound: string;
+    tabReports: string;
+    tabUsers: string;
+    usersDirectoryTitle: string;
+    usersDirectorySubtitle: string;
+    userNameCol: string;
+    userEmailCol: string;
+    userCityCol: string;
+    userRoleCol: string;
+    userRegisteredCol: string;
+    userActionsCol: string;
+    noUsersFound: string;
+    searchUsersPlaceholder: string;
+    deleteUserConfirm: string;
+    userDeletedToast: string;
   };
   auth: {
     title: string;
@@ -396,6 +422,19 @@ export const translations: Record<Language, TranslationDictionary> = {
       severe: 'Severe',
       criticalShortfall: 'Critical Shortfall',
       moderate: 'Moderate',
+      viewTempAqi: 'Temperature & AQI',
+      viewPm: 'Particulate Matter (PM2.5 & PM10)',
+      viewThermalHumidity: 'Thermal & Humidity',
+      exportCsv: 'Download CSV Dataset',
+      exportJson: 'Raw JSON Feed',
+      multiCityCompare: 'Inter-City Climate Comparison',
+      multiCityCompareDesc:
+        'Live environmental telemetry across all 4 monitored municipal hubs.',
+      refreshData: 'Refresh Live Feed',
+      stationDetails: 'Monitoring Station Provenance',
+      loadingTrends: 'Loading live 24-hour meteorological trends...',
+      interCityComparison: 'All Monitored Cities',
+      downloadSuccess: 'Telemetry dataset CSV downloaded successfully!',
     },
     reports: {
       title: 'Hazard Reporting',
@@ -494,6 +533,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       statusUpdatedToast: 'Report status updated successfully',
       reportDeletedToast: 'Report removed from queue',
       noReportsFound: 'No citizen reports match current filter criteria.',
+      tabReports: 'Hazard Reports',
+      tabUsers: 'Registered Citizens',
+      usersDirectoryTitle: 'Registered Citizens & Users',
+      usersDirectorySubtitle: 'Directory of all verified community residents, city hubs, and authority accounts',
+      userNameCol: 'Citizen / Name',
+      userEmailCol: 'Email Address',
+      userCityCol: 'City Hub',
+      userRoleCol: 'Role',
+      userRegisteredCol: 'Registered At',
+      userActionsCol: 'Actions',
+      noUsersFound: 'No registered users match your search criteria.',
+      searchUsersPlaceholder: 'Search users by name, email, or city...',
+      deleteUserConfirm: 'Are you sure you want to remove this user account?',
+      userDeletedToast: 'User account removed from database',
     },
     auth: {
       title: 'BioCanopy Climate Portal',
@@ -680,6 +733,19 @@ export const translations: Record<Language, TranslationDictionary> = {
       severe: 'गंभीर',
       criticalShortfall: 'गंभीर कमी',
       moderate: 'मध्यम',
+      viewTempAqi: 'तापमान और AQI',
+      viewPm: 'कण सांद्रता (PM2.5 और PM10)',
+      viewThermalHumidity: 'तापमान और आर्द्रता',
+      exportCsv: 'CSV डेटासेट डाउनलोड करें',
+      exportJson: 'रॉ JSON फ़ीड',
+      multiCityCompare: 'अंतर-शहरी पर्यावरण तुलना',
+      multiCityCompareDesc:
+        'सभी ४ नगर निगम केंद्रों का रीयल-टाइम पर्यावरण टेलीमेट्री डेटा।',
+      refreshData: 'रीयल-टाइम डेटा रीफ्रेश करें',
+      stationDetails: 'निगरानी केंद्र विवरण',
+      loadingTrends: '२४ घंटे के मौसम संबंधी आंकड़े लोड हो रहे हैं...',
+      interCityComparison: 'सभी मॉनिटर किए गए शहर',
+      downloadSuccess: 'टेलीमेट्री डेटासेट CSV सफलतापूर्वक डाउनलोड किया गया!',
     },
     reports: {
       title: 'नागरिक खतरा रिपोर्टिंग',
@@ -778,6 +844,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       statusUpdatedToast: 'रिपोर्ट स्थिति सफलतापूर्वक अपडेट हुई',
       reportDeletedToast: 'शिकायत सूची से हटा दी गई',
       noReportsFound: 'वर्तमान फ़िल्टर में कोई शिकायत नहीं मिली।',
+      tabReports: 'खतरा रिपोर्ट',
+      tabUsers: 'पंजीकृत नागरिक',
+      usersDirectoryTitle: 'पंजीकृत नागरिक एवं उपयोगकर्ता',
+      usersDirectorySubtitle: 'सभी सत्यापित नागरिकों, शहर हब और व्यवस्थापक खातों की सूची',
+      userNameCol: 'नागरिक / नाम',
+      userEmailCol: 'ईमेल पता',
+      userCityCol: 'शहर हब',
+      userRoleCol: 'भूमिका',
+      userRegisteredCol: 'पंजीकरण समय',
+      userActionsCol: 'कार्रवाई',
+      noUsersFound: 'खोजे गए निकष में कोई उपयोगकर्ता नहीं मिला।',
+      searchUsersPlaceholder: 'नाम, ईमेल या शहर से नागरिक खोजें...',
+      deleteUserConfirm: 'क्या आप इस उपयोगकर्ता खाते को हटाना चाहते हैं?',
+      userDeletedToast: 'उपयोगकर्ता खाता डेटाबेस से हटा दिया गया',
     },
     auth: {
       title: 'बायोकैनोपी जलवायु पोर्टल',
@@ -964,6 +1044,19 @@ export const translations: Record<Language, TranslationDictionary> = {
       severe: 'अतिवाईट',
       criticalShortfall: 'मोठी तूट',
       moderate: 'मध्यम',
+      viewTempAqi: 'तापमान आणि AQI',
+      viewPm: 'धूलिकण (PM2.5 आणि PM10)',
+      viewThermalHumidity: 'तापमान आणि आर्द्रता',
+      exportCsv: 'CSV डेटा डाऊनलोड करा',
+      exportJson: 'रॉ JSON फीड',
+      multiCityCompare: 'शहरांमधील पर्यावरण तुलना',
+      multiCityCompareDesc:
+        'सर्व ४ महापालिका केंद्रांमधील थेट पर्यावरण टेलीमेट्री.',
+      refreshData: 'थेट डेटा रीफ्रेश करा',
+      stationDetails: 'निरीक्षण केंद्र तपशील',
+      loadingTrends: '२४ तासांची हवामान आकडेवारी लोड होत आहे...',
+      interCityComparison: 'सर्व नोंदणीकृत शहरे',
+      downloadSuccess: 'टेलीमेट्री डेटासेट CSV यशस्वीरित्या डाऊनलोड झाले!',
     },
     reports: {
       title: 'नागरिक तक्रार नोंदणी',
@@ -1062,6 +1155,20 @@ export const translations: Record<Language, TranslationDictionary> = {
       statusUpdatedToast: 'तक्रारीची स्थिती यशस्वीरीत्या अद्ययावत केली',
       reportDeletedToast: 'तक्रार यादीतून हटवली',
       noReportsFound: 'निवडलेल्या निकषात कोणतीही तक्रार आढळली नाही.',
+      tabReports: 'धोका तक्रारी',
+      tabUsers: 'नोंदणीकृत नागरिक',
+      usersDirectoryTitle: 'नोंदणीकृत नागरिक आणि वापरकर्ते',
+      usersDirectorySubtitle: 'सर्व पडताळणी झालेले नागरिक, शहर केंद्र आणि प्रशासन खात्यांची सूची',
+      userNameCol: 'नागरिक / नाव',
+      userEmailCol: 'ईमेल पत्ता',
+      userCityCol: 'शहर केंद्र',
+      userRoleCol: 'भूमिका',
+      userRegisteredCol: 'नोंदणी वेळ',
+      userActionsCol: 'कृती',
+      noUsersFound: 'शोध निकषानुसार कोणताही वापरकर्ता आढळला नाही.',
+      searchUsersPlaceholder: 'नाव, ईमेल किंवा शहराने नागरिक शोधा...',
+      deleteUserConfirm: 'तुम्हाला खात्री आहे का की हे खाते हटवायचे आहे?',
+      userDeletedToast: 'वापरकर्ता खाते डेटाबेसमधून हटवले गेले',
     },
     auth: {
       title: 'बायोकॅनॉपी हवामान पोर्टल',

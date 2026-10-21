@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { db } from '../db.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendWelcomeEmail, dispatchedEmailsLog } from '../services/emailService.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'biocanopy_jwt_secret_dev_key_2026';
@@ -57,10 +58,20 @@ router.post('/register', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Dispatch welcome confirmation email to registered citizen
+    const emailResult = await sendWelcomeEmail({
+      email: trimmedEmail,
+      name: name.trim(),
+      role: 'citizen',
+      city: userCity,
+    });
+
     return res.status(201).json({
-      message: 'Account created successfully!',
+      message: 'Account created successfully! Welcome email sent.',
       token,
       user: newUser,
+      emailSent: emailResult.sent,
+      emailPreviewUrl: emailResult.previewUrl,
     });
   } catch (err) {
     console.error('Error during registration:', err);
@@ -187,16 +198,14 @@ router.post('/google-login', async (req, res) => {
 
     // Email delivery trigger constraint:
     // "Make sure this email thing is only for users not admins."
-    let emailSent = false;
+    let emailResult = { sent: false };
     if (user.role === 'citizen' && !trimmedEmail.includes('admin')) {
-      emailSent = true;
-      console.log(`\n📧 ==========================================`);
-      console.log(`[Email Service] Dispatched Sign-In Confirmation to Citizen:`);
-      console.log(`To: ${user.name} <${user.email}>`);
-      console.log(`Subject: 🌿 Welcome to BioCanopy — You've signed in successfully!`);
-      console.log(`City Hub: ${user.city || selectedCity}`);
-      console.log(`Timestamp: ${new Date().toISOString()}`);
-      console.log(`==========================================\n`);
+      emailResult = await sendWelcomeEmail({
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        city: user.city || selectedCity,
+      });
     } else {
       console.log(`[Email Service] Skipped welcome email for admin: ${trimmedEmail}`);
     }
@@ -204,7 +213,8 @@ router.post('/google-login', async (req, res) => {
     return res.json({
       message: 'Signed in with Google successfully!',
       token,
-      emailSent,
+      emailSent: emailResult.sent,
+      emailPreviewUrl: emailResult.previewUrl,
       user: {
         id: user.id,
         name: user.name,
@@ -220,39 +230,22 @@ router.post('/google-login', async (req, res) => {
 });
 
 // POST /api/auth/send-welcome-email - Dispatch confirmation email to citizens ONLY
-router.post('/send-welcome-email', (req, res) => {
+router.post('/send-welcome-email', async (req, res) => {
   const { email, name, role, city } = req.body;
 
   if (!email) {
     return res.status(400).json({ message: 'Email is required' });
   }
 
-  const isUserAdmin = role === 'admin' || email.toLowerCase().includes('admin');
+  const result = await sendWelcomeEmail({ email, name, role, city });
+  return res.json(result);
+});
 
-  // Strict constraint: "Make sure this email thing is only for users not admins."
-  if (isUserAdmin) {
-    console.log(`[Email Service] Skipped welcome email for admin: ${email}`);
-    return res.json({
-      sent: false,
-      message: 'Admin accounts do not receive welcome sign-in emails.',
-    });
-  }
-
-  console.log(`\n📧 ==========================================`);
-  console.log(`[Email Service] Dispatched Welcome Email to Citizen:`);
-  console.log(`To: ${name || 'Resident'} <${email}>`);
-  console.log(`Subject: 🌿 Welcome to BioCanopy — You've signed in successfully!`);
-  console.log(`City: ${city || 'Delhi'}`);
-  console.log(`Status: 250 OK - Delivered via simulated SMTP gateway`);
-  console.log(`Timestamp: ${new Date().toISOString()}`);
-  console.log(`==========================================\n`);
-
-  return res.json({
-    sent: true,
-    recipient: email,
-    subject: "🌿 Welcome to BioCanopy — You've signed in successfully!",
-    message: `Welcome email sent successfully to ${email}`,
-    timestamp: new Date().toISOString(),
+// GET /api/auth/dispatched-emails - View all dispatched emails (for live preview/testing)
+router.get('/dispatched-emails', (req, res) => {
+  res.json({
+    count: dispatchedEmailsLog.length,
+    emails: dispatchedEmailsLog,
   });
 });
 
