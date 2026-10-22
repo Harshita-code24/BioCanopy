@@ -4,13 +4,8 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
-  Code2,
   Database,
   Download,
-  ExternalLink,
-  Flame,
-  Globe2,
-  HeartPulse,
   Info,
   Layers,
   MapPin,
@@ -224,7 +219,7 @@ function GlowingGaugeCard({
 }
 
 export function OpenDataPage() {
-  const { selectedCity, setSelectedCity, currentMetric, isLoadingTelemetry, setLanguage, showToast } =
+  const { selectedCity, setSelectedCity, currentMetric, isLoadingTelemetry, showToast, setIsProfileOpen } =
     useAppState();
   const { t, language } = useTranslation();
   const copy = t.openData;
@@ -330,11 +325,6 @@ export function OpenDataPage() {
     showToast(`📊 ${copy.downloadSuccess}`, 'success');
   };
 
-  // Open Raw JSON Feed in new window
-  const handleViewJson = () => {
-    window.open(`http://localhost:5000/api/telemetry/${selectedCity}/trends`, '_blank');
-  };
-
   const heatBand: 'green' | 'amber' | 'red' =
     city.temperature >= 38 ? 'red' : city.temperature >= 33 ? 'amber' : 'green';
 
@@ -343,12 +333,6 @@ export function OpenDataPage() {
 
   const canopyBand: 'green' | 'amber' | 'red' =
     city.treeCover >= 30 ? 'green' : city.treeCover >= 20 ? 'amber' : 'red';
-
-  const languages: { code: Language; label: string; native: string }[] = [
-    { code: 'en', label: 'English', native: 'English' },
-    { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-    { code: 'mr', label: 'Marathi', native: 'मराठी' },
-  ];
 
   return (
     <div className="space-y-6">
@@ -380,13 +364,13 @@ export function OpenDataPage() {
             </div>
           </div>
 
-          {/* Action Toolbar: Refresh, CSV Export, JSON, Language */}
+          {/* Action Toolbar: Refresh & CSV Export */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Live Refresh Button */}
             <button
               onClick={handleForceRefresh}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3 py-2 text-xs font-bold text-[#ECFDF5] transition hover:bg-emerald-600/30 active:scale-95 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3.5 py-2 text-xs font-bold text-[#ECFDF5] transition hover:bg-emerald-600/30 active:scale-95 disabled:opacity-60"
               title={copy.refreshData}
             >
               <RefreshCw className={`h-3.5 w-3.5 text-emerald-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -396,41 +380,12 @@ export function OpenDataPage() {
             {/* Download CSV Dataset Button */}
             <button
               onClick={handleDownloadCsv}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-glow transition hover:bg-emerald-500 active:scale-95"
               title="Download CSV"
             >
               <Download className="h-3.5 w-3.5" />
               <span>{copy.exportCsv}</span>
             </button>
-
-            {/* View Raw JSON Feed */}
-            <button
-              onClick={handleViewJson}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-3 py-2 text-xs font-bold text-[#94BDB2] transition hover:text-white hover:bg-emerald-600/20 active:scale-95"
-              title="Open Backend JSON API"
-            >
-              <Code2 className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">{copy.exportJson}</span>
-              <ExternalLink className="h-3 w-3 opacity-60" />
-            </button>
-
-            {/* Regional Language Switcher */}
-            <div className="flex items-center gap-1 rounded-xl bg-[#081412] p-1 border border-emerald-500/20">
-              <Globe2 className="h-3.5 w-3.5 text-emerald-400 ml-1 mr-0.5 shrink-0" />
-              {languages.map((item) => (
-                <button
-                  key={item.code}
-                  onClick={() => setLanguage(item.code)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                    language === item.code
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'text-[#94BDB2] hover:text-white'
-                  }`}
-                >
-                  {item.native}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -781,7 +736,12 @@ export function OpenDataPage() {
             return (
               <div
                 key={c.city}
-                onClick={() => setSelectedCity(c.city)}
+                onClick={() => {
+                  if (!isCurrent) {
+                    showToast(`To view ${c.city}'s full telemetry & maps, update your location in your Profile.`, 'info');
+                    setIsProfileOpen(true);
+                  }
+                }}
                 className={`cursor-pointer rounded-2xl border p-4 transition ${
                   isCurrent
                     ? 'border-emerald-400/80 bg-emerald-950/40 shadow-glow'
@@ -796,7 +756,7 @@ export function OpenDataPage() {
                     </span>
                   ) : (
                     <span className="text-[11px] text-[#94BDB2] hover:text-emerald-400 font-semibold">
-                      Switch →
+                      Profile ↗
                     </span>
                   )}
                 </div>
@@ -872,45 +832,6 @@ export function OpenDataPage() {
               {copy.provenanceSatellite}
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Sustainable Development Goals (SDG) Alignment Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
-              <Flame className="h-4 w-4" />
-            </div>
-            <h4 className="text-xs font-bold text-white">{copy.sdg13Title}</h4>
-          </div>
-          <p className="mt-2 text-xs text-[#94BDB2] leading-relaxed">
-            {copy.sdg13Desc}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
-              <Trees className="h-4 w-4" />
-            </div>
-            <h4 className="text-xs font-bold text-white">{copy.sdg11Title}</h4>
-          </div>
-          <p className="mt-2 text-xs text-[#94BDB2] leading-relaxed">
-            {copy.sdg11Desc}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-emerald-500/20 bg-[#0F2420] p-5 shadow-card">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
-              <HeartPulse className="h-4 w-4" />
-            </div>
-            <h4 className="text-xs font-bold text-white">{copy.sdg3Title}</h4>
-          </div>
-          <p className="mt-2 text-xs text-[#94BDB2] leading-relaxed">
-            {copy.sdg3Desc}
-          </p>
         </div>
       </div>
     </div>

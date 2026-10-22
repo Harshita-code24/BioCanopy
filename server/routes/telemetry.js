@@ -45,14 +45,104 @@ const CITIES = {
   },
 };
 
-// Simple in-memory cache to prevent hitting external rate limits (5-minute TTL)
+// URL endpoints for live CPCB ground station tracking via aqi.in
+const AQI_IN_URLS = {
+  Mumbai: 'https://www.aqi.in/in/dashboard/india/maharashtra/mumbai',
+  Delhi: 'https://www.aqi.in/in/dashboard/india/delhi/new-delhi',
+  Bengaluru: 'https://www.aqi.in/in/dashboard/india/karnataka/bengaluru',
+  Ahmedabad: 'https://www.aqi.in/in/dashboard/india/gujarat/ahmedabad',
+};
+
+// Simple in-memory cache to prevent excessive external requests (3-minute TTL)
 const cache = {
   cities: {},
   trends: {},
   lastFetch: {},
 };
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+
+// Calculate official Indian CPCB National Air Quality Index (NAQI) from PM2.5 and PM10
+function calculateCpcbAqi(pm25, pm10) {
+  function getSubIndex(val, breakpoints) {
+    for (const [bLo, bHi, iLo, iHi] of breakpoints) {
+      if (val >= bLo && val <= bHi) {
+        return Math.round(((iHi - iLo) / (bHi - bLo)) * (val - bLo) + iLo);
+      }
+    }
+    return Math.min(500, Math.round(val * 1.5));
+  }
+
+  // CPCB PM2.5 Breakpoints (ug/m3) -> AQI
+  const pm25Breakpoints = [
+    [0, 30, 0, 50],
+    [30.1, 60, 51, 100],
+    [60.1, 90, 101, 200],
+    [90.1, 120, 201, 300],
+    [120.1, 250, 301, 400],
+    [250.1, 500, 401, 500],
+  ];
+
+  // CPCB PM10 Breakpoints (ug/m3) -> AQI
+  const pm10Breakpoints = [
+    [0, 50, 0, 50],
+    [50.1, 100, 51, 100],
+    [100.1, 250, 101, 200],
+    [250.1, 350, 201, 300],
+    [350.1, 430, 301, 400],
+    [430.1, 600, 401, 500],
+  ];
+
+  const subPm25 = pm25 != null ? getSubIndex(pm25, pm25Breakpoints) : 0;
+  const subPm10 = pm10 != null ? getSubIndex(pm10, pm10Breakpoints) : 0;
+
+  return Math.max(subPm25, subPm10);
+}
+
+// Fetch live ground CPCB/MPCB station readings from aqi.in
+async function fetchLiveAqiIn(cityName) {
+  const url = AQI_IN_URLS[cityName];
+  if (!url) return null;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4500);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return null;
+    const html = await res.text();
+    const descMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
+    if (!descMatch) return null;
+
+    const text = descMatch[1];
+    const aqiMatch = text.match(/AQI\)\s+is\s+(\d+)/i);
+    const pm25Match = text.match(/PM2\.5\s*\(([\d\.]+)/i);
+    const pm10Match = text.match(/PM10\s*\(([\d\.]+)/i);
+    const tempMatch = text.match(/Temperature\s*\(([\d\.]+)/i);
+
+    if (aqiMatch && pm25Match) {
+      return {
+        aqi: Number(aqiMatch[1]),
+        pm25: Number(pm25Match[1]),
+        pm10: pm10Match ? Number(pm10Match[1]) : Number((Number(pm25Match[1]) * 1.35).toFixed(1)),
+        temperature: tempMatch ? Number(tempMatch[1]) : null,
+        source: 'Live CPCB / MPCB Ground Station',
+      };
+    }
+  } catch (e) {
+    // Graceful fallback to satellite & model on network timeout
+  }
+  return null;
+}
 
 // Fetch real-time weather and air quality for a single city
 async function fetchLiveCityData(cityName) {
@@ -70,22 +160,35 @@ async function fetchLiveCityData(cityName) {
 
   try {
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m`;
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&current=us_aqi,pm10,pm2_5`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&current=pm10,pm2_5`;
 
-    const [weatherRes, aqiRes] = await Promise.all([
+    const [weatherRes, aqiRes, groundAqi] = await Promise.all([
       fetch(weatherUrl),
       fetch(aqiUrl),
+      fetchLiveAqiIn(cityName),
     ]);
 
     const weatherData = await weatherRes.json();
     const aqiData = await aqiRes.json();
 
-    const temp = Number(weatherData.current?.temperature_2m ?? 35);
+    const temp = Number(groundAqi?.temperature ?? weatherData.current?.temperature_2m ?? 32);
     const feelsLike = Number(weatherData.current?.apparent_temperature ?? temp + 3);
     const humidity = Math.round(weatherData.current?.relative_humidity_2m ?? 50);
-    const aqiVal = Math.round(aqiData.current?.us_aqi ?? 120);
-    const pm25 = Number((aqiData.current?.pm2_5 ?? 45).toFixed(1));
-    const pm10 = Number((aqiData.current?.pm10 ?? 90).toFixed(1));
+
+    // Prefer exact live ground data from aqi.in (CPCB / MPCB monitoring stations)
+    let aqiVal;
+    let pm25;
+    let pm10;
+
+    if (groundAqi && groundAqi.aqi > 0) {
+      aqiVal = groundAqi.aqi;
+      pm25 = groundAqi.pm25;
+      pm10 = groundAqi.pm10;
+    } else {
+      pm25 = Number((aqiData.current?.pm2_5 ?? 45).toFixed(1));
+      pm10 = Number((aqiData.current?.pm10 ?? 90).toFixed(1));
+      aqiVal = calculateCpcbAqi(pm25, pm10);
+    }
 
     // Calculate asphalt radiant heat gain vs air temperature
     const surfaceTemp = Number((temp + 4.2).toFixed(1));
@@ -121,22 +224,21 @@ async function fetchLiveCityData(cityName) {
     return metric;
   } catch (err) {
     console.warn(`Error fetching live data for ${cityName}, using baseline:`, err);
-    // Fallback baseline
     return {
       city: cityInfo.city,
       state: cityInfo.state,
-      aqi: 120,
-      pm25: 45,
-      pm10: 90,
-      temperature: 34.0,
-      feelsLike: 38.0,
-      humidity: 50,
+      aqi: 140,
+      pm25: 65,
+      pm10: 98,
+      temperature: 30.0,
+      feelsLike: 34.0,
+      humidity: 62,
       treeCover: cityInfo.treeCover,
       targetCanopy: cityInfo.targetCanopy,
       heatRisk: 'Moderate',
       cpcbStation: cityInfo.cpcbStation,
       imdStation: cityInfo.imdStation,
-      satelliteSurfaceTemp: 38.5,
+      satelliteSurfaceTemp: 34.5,
       lastUpdated: 'Cached fallback',
     };
   }
@@ -158,11 +260,12 @@ async function fetchCityTrendsData(cityName) {
 
   try {
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&hourly=temperature_2m,relative_humidity_2m&forecast_days=1`;
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&hourly=us_aqi,pm2_5,pm10&forecast_days=1`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${cityInfo.lat}&longitude=${cityInfo.lng}&hourly=pm2_5,pm10&forecast_days=1`;
 
-    const [weatherRes, aqiRes] = await Promise.all([
+    const [weatherRes, aqiRes, liveMetric] = await Promise.all([
       fetch(weatherUrl),
       fetch(aqiUrl),
+      fetchLiveCityData(cityName),
     ]);
 
     const weatherData = await weatherRes.json();
@@ -171,17 +274,28 @@ async function fetchCityTrendsData(cityName) {
     const hours = weatherData.hourly?.time || [];
     const temps = weatherData.hourly?.temperature_2m || [];
     const humidities = weatherData.hourly?.relative_humidity_2m || [];
-    const aqis = aqiData.hourly?.us_aqi || [];
     const pm25s = aqiData.hourly?.pm2_5 || [];
     const pm10s = aqiData.hourly?.pm10 || [];
+
+    // Scale diurnal curve with current live ground values
+    const currentAqi = liveMetric?.aqi ?? 140;
+    const currentPm25 = liveMetric?.pm25 ?? 60;
+    const currentPm10 = liveMetric?.pm10 ?? 90;
+
+    const basePm25Avg = pm25s.length > 0 ? pm25s.reduce((a, b) => a + b, 0) / pm25s.length : 40;
+    const pmScale = basePm25Avg > 0 ? currentPm25 / basePm25Avg : 1.0;
 
     const trendPoints = hours.slice(0, 24).map((isoTime, idx) => {
       const hourStr = isoTime.split('T')[1] || `${String(idx).padStart(2, '0')}:00`;
       const temp = Number((temps[idx] ?? 30).toFixed(1));
-      const aqi = Math.round(aqis[idx] ?? 100);
       const humidity = Math.round(humidities[idx] ?? 50);
-      const pm25 = Number((pm25s[idx] ?? 40).toFixed(1));
-      const pm10 = Number((pm10s[idx] ?? 80).toFixed(1));
+
+      const rawPm25 = (pm25s[idx] ?? 40) * pmScale;
+      const rawPm10 = (pm10s[idx] ?? 80) * (pmScale * 0.95);
+
+      const pm25 = Number(Math.max(10, rawPm25).toFixed(1));
+      const pm10 = Number(Math.max(20, rawPm10).toFixed(1));
+      const aqi = calculateCpcbAqi(pm25, pm10);
 
       let heatRisk = 'Low';
       if (temp >= 38) heatRisk = 'High';
@@ -296,7 +410,7 @@ router.get('/:city/export', async (req, res) => {
     const dateToday = new Date().toISOString().split('T')[0];
 
     const csvHeader =
-      'City,Date,Time,Formatted Hour,Temperature (C),Surface Temp (C),Humidity (%),AQI,PM2.5 (ug/m3),PM10 (ug/m3),Heat Risk,IMD Station,CPCB Station\n';
+      'City,Date,Time,Formatted Hour,Temperature (C),Surface Temp (C),Humidity (%),AQI (CPCB NAQI),PM2.5 (ug/m3),PM10 (ug/m3),Heat Risk,IMD Station,CPCB Station\n';
     const csvRows = trends
       .map((t) => {
         return `"${cityName}","${dateToday}","${t.time}","${t.displayHour}",${t.temperature},${t.surfaceTemp},${t.humidity},${t.aqi},${t.pm25},${t.pm10},"${t.heatRisk}","${cityInfo.imdStation}","${cityInfo.cpcbStation}"`;

@@ -1,6 +1,4 @@
-import {
-  Navigation,
-} from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n/useTranslation';
 import { useAppState } from '../store/AppStateContext';
@@ -54,7 +52,7 @@ export function DashboardPage() {
           <div className="flex flex-wrap gap-2.5">
             <Link
               to="/map"
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-xs font-bold text-white shadow-glow hover:bg-emerald-500 transition"
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-xs font-bold text-white shadow-glow hover:bg-emerald-500 transition active:scale-95"
             >
               <Navigation className="h-4 w-4" />
               <span>{t.dashboard.launchCoolRoute}</span>
@@ -108,4 +106,3 @@ export function DashboardPage() {
     </div>
   );
 }
-

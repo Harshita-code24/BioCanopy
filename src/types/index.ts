@@ -102,10 +102,12 @@ export type AuthorityZone = {
   currentCanopy: number; // e.g. 14%
   surfaceTemp: number; // e.g. 42.5°C
   priorityRank: number;
-  status: 'Needs Dispatch' | 'Task Dispatched' | 'Planting In Progress' | 'Completed';
+  status: 'Needs Dispatch' | 'Task Dispatched' | 'Planting In Progress' | 'Completed' | string;
   targetSaplings: number;
+  taskType?: string;
   dispatchId?: string;
-  lastReported: string;
+  dispatchedAt?: string | null;
+  lastReported?: string;
 };
 
 export type Hotspot = {
@@ -120,3 +122,48 @@ export type Hotspot = {
 export type AppTab = 'map' | 'dashboard' | 'authority';
 
 export type AiConditionPreset = 'peak_heat' | 'smog_morning' | 'evening_cooling';
+
+export type DemographicPersona =
+  | 'general'
+  | 'elderly'
+  | 'children'
+  | 'outdoor_workers'
+  | 'athletes';
+
+export type AdvisorHourlySlot = {
+  hour: string;
+  temp: number;
+  radiation: string;
+  status: string;
+  color: string;
+};
+
+export type AdvisorResponse = {
+  level: string;
+  badge: string;
+  badgeColor: string;
+  headline: string;
+  body: string;
+  hydration: string;
+  safeHours: string;
+  riskLevel: 'low' | 'moderate' | 'high' | 'severe' | 'extreme';
+  heatIndex?: number;
+  asphaltTemp?: number;
+  persona?: DemographicPersona;
+  personaTip?: string;
+  hourlyForecast?: AdvisorHourlySlot[];
+  source: string;
+};
+
+export type ThermalPocketItem = {
+  id: number;
+  city: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  coordinates: [number, number];
+  intensity: number;
+  surfaceTemp: number;
+  sensorSource: string;
+};
+

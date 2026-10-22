@@ -12,6 +12,7 @@ export type AuthResult = {
   success: boolean;
   message?: string;
   emailSent?: boolean;
+  user?: User;
 };
 
 type AuthContextValue = {
@@ -53,6 +54,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize and verify session on load
   useEffect(() => {
     const initializeAuth = async () => {
+      // Check for Google OAuth callback redirect parameters in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const googleToken = urlParams.get('google_token');
+      const googleName = urlParams.get('name');
+      const googleEmail = urlParams.get('email');
+      if (googleToken && googleEmail) {
+        setToken(googleToken);
+        localStorage.setItem(AUTH_TOKEN_KEY, googleToken);
+        const userObj: User = {
+          name: googleName || 'Google User',
+          email: googleEmail,
+          role: googleEmail.includes('admin') ? 'admin' : 'citizen',
+          city: 'Delhi',
+        };
+        const enriched = enrichUser(userObj, 'google_verified');
+        setUser(enriched);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setIsLoading(false);
+        return;
+      }
+
       const savedToken = localStorage.getItem(AUTH_TOKEN_KEY);
       const savedUser = localStorage.getItem(AUTH_USER_KEY);
 
@@ -136,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
-        return { success: true, message: data.message };
+        return { success: true, message: data.message, user: enriched };
       } catch (err) {
         console.warn('Backend server unreachable, falling back to local demo auth:', err);
         // Fallback for offline demo
@@ -157,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         setUser(fallbackUser);
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fallbackUser));
-        return { success: true, message: 'Logged in (offline demo mode).' };
+        return { success: true, message: 'Logged in (offline demo mode).', user: fallbackUser };
       }
     }
 
@@ -165,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const directUser = enrichUser(payload as User);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(directUser));
     setUser(directUser);
-    return { success: true };
+    return { success: true, user: directUser };
   };
 
   const signup = async (
@@ -198,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(enriched));
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
 
-        return { success: true, message: data.message };
+        return { success: true, message: data.message, user: enriched };
       } catch (err) {
         console.warn('Backend server unreachable, falling back to local demo auth:', err);
         const fallbackUser: User = enrichUser(
@@ -214,14 +237,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         setUser(fallbackUser);
         localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fallbackUser));
-        return { success: true, message: 'Account created (offline demo mode).' };
+        return { success: true, message: 'Account created (offline demo mode).', user: fallbackUser };
       }
     }
 
     const directUser = enrichUser(payload as User);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(directUser));
     setUser(directUser);
-    return { success: true };
+    return { success: true, user: directUser };
   };
 
   const googleLogin = async (payload: { name: string; email: string; city?: string }): Promise<AuthResult> => {

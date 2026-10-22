@@ -56,6 +56,25 @@ export interface TranslationDictionary {
     highRisk: string;
     moderateRisk: string;
     lowRisk: string;
+    quickReportHazard: string;
+    viewOpenData: string;
+    municipalQueueTitle: string;
+    municipalQueueSubtitle: string;
+    requestSquadBtn: string;
+    orderDispatched: string;
+    recentReportsTitle: string;
+    recentReportsSubtitle: string;
+    noReportsYet: string;
+    ecoActionsTitle: string;
+    ecoActionsSubtitle: string;
+    ecoPoints: string;
+    actionCoolRoute: string;
+    actionHydrate: string;
+    actionGeotag: string;
+    actionPlanting: string;
+    advisorPromptTitle: string;
+    advisorPromptDesc: string;
+    openAdvisorBtn: string;
   };
   map: {
     title: string;
@@ -357,6 +376,26 @@ export const translations: Record<Language, TranslationDictionary> = {
       highRisk: 'High Risk',
       moderateRisk: 'Moderate Risk',
       lowRisk: 'Low Risk',
+      quickReportHazard: 'Report Hazard',
+      viewOpenData: 'Telemetry & Open Data',
+      municipalQueueTitle: 'Municipal Tree Planting & Heat Defense Queue',
+      municipalQueueSubtitle:
+        'Ranked urban hotspot blocks combining satellite canopy deficit with citizen hazard reports.',
+      requestSquadBtn: 'Request Planting Squad',
+      orderDispatched: 'Order Dispatched',
+      recentReportsTitle: 'Recent Community Hazard Reports',
+      recentReportsSubtitle: 'Live geotagged citizen alerts in your municipal hub.',
+      noReportsYet: 'No active reports in this city. Tap Report Hazard to alert the team!',
+      ecoActionsTitle: 'Daily Climate Resilience Actions',
+      ecoActionsSubtitle: 'Earn Eco-Points by completing daily cooling & greening actions.',
+      ecoPoints: 'Eco-Points',
+      actionCoolRoute: 'Navigated via tree-shaded Cool Route today',
+      actionHydrate: 'Carried personal reusable hydration flask during peak heat',
+      actionGeotag: 'Geotagged an unshaded bus stop or heat island',
+      actionPlanting: 'Requested municipal tree canopy squad for local street',
+      advisorPromptTitle: 'Live AI Health & Transit Advisory',
+      advisorPromptDesc: 'Personalized hydration, thermal safe hours, and shade recommendations.',
+      openAdvisorBtn: 'Consult AI Safety Advisor',
     },
     map: {
       title: 'Cool-Route Navigation',
@@ -668,6 +707,26 @@ export const translations: Record<Language, TranslationDictionary> = {
       highRisk: 'उच्च जोखिम',
       moderateRisk: 'मध्यम जोखिम',
       lowRisk: 'कम जोखिम',
+      quickReportHazard: 'खतरे की सूचना दें',
+      viewOpenData: 'टेलीमेट्री और ओपन डेटा',
+      municipalQueueTitle: 'नगरपालिका वृक्षारोपण एवं ताप शमन कतार',
+      municipalQueueSubtitle:
+        'सैटेलाइट कैनोपी की कमी और नागरिक रिपोर्टों को मिलाकर प्राथमिकता क्रम में शहर के ब्लॉक।',
+      requestSquadBtn: 'वृक्षारोपण दल का अनुरोध करें',
+      orderDispatched: 'कार्य आदेश भेजा गया',
+      recentReportsTitle: 'हाल की नागरिक खतरा रिपोर्टें',
+      recentReportsSubtitle: 'आपके नगरपालिका केंद्र में लाइव भू-टैग की गई नागरिक चेतावनियां।',
+      noReportsYet: 'इस शहर में कोई सक्रिय रिपोर्ट नहीं है। टीम को सूचित करने के लिए रिपोर्ट बटन दबाएं!',
+      ecoActionsTitle: 'दैनिक जलवायु अनुकूलन कार्य',
+      ecoActionsSubtitle: 'दैनिक शीतलन और हरित गतिविधियों को पूरा करके इको-पॉइंट्स अर्जित करें।',
+      ecoPoints: 'इको-पॉइंट्स',
+      actionCoolRoute: 'आज छायादार शीतल मार्ग से यात्रा की',
+      actionHydrate: 'चरम गर्मी में व्यक्तिगत पुनः प्रयोज्य पानी की बोतल रखी',
+      actionGeotag: 'छायाहीन बस स्टैंड या हीट आइलैंड को जियोटैग किया',
+      actionPlanting: 'स्थानीय सड़क के लिए नगरपालिका वृक्षारोपण दल का अनुरोध किया',
+      advisorPromptTitle: 'लाइव एआई स्वास्थ्य एवं यात्रा परामर्श',
+      advisorPromptDesc: 'व्यक्तिगत जलपान, धूप से बचाव के सुरक्षित घंटे और छाया अनुशंसाएं।',
+      openAdvisorBtn: 'एआई सुरक्षा सलाहकार से परामर्श लें',
     },
     map: {
       title: 'शीतल मार्ग नेविगेशन',
@@ -979,6 +1038,26 @@ export const translations: Record<Language, TranslationDictionary> = {
       highRisk: 'जास्त धोका',
       moderateRisk: 'मध्यम धोका',
       lowRisk: 'कमी धोका',
+      quickReportHazard: 'धोक्याची नोंद करा',
+      viewOpenData: 'टेलिमेट्री आणि ओपन डेटा',
+      municipalQueueTitle: 'महापालिका वृक्षारोपण व उष्णता निवारण रांग',
+      municipalQueueSubtitle:
+        'उपग्रह झाडांची तूट आणि नागरिक तक्रारींवर आधारित प्राधान्यक्रमाने ठरवलेले भाग.',
+      requestSquadBtn: 'वृक्षारोपण पथकाची विनंती करा',
+      orderDispatched: 'कार्य आदेश दिला गेला',
+      recentReportsTitle: 'अलीकडील नागरिक तक्रारी',
+      recentReportsSubtitle: 'आपल्या महापालिका क्षेत्रात थेट जिओटॅग केलेल्या सूचना.',
+      noReportsYet: 'या शहरात कोणतीही सक्रिय तक्रार नाही. पथकाला कळवण्यासाठी रिपोर्ट बटण दाबा!',
+      ecoActionsTitle: 'दैनंदिन पर्यावरण रक्षण कृती',
+      ecoActionsSubtitle: 'रोजच्या पर्यावरणपूरक कृती पूर्ण करून इको-पॉइंट्स मिळवा.',
+      ecoPoints: 'इको-पॉइंट्स',
+      actionCoolRoute: 'आज सावलीच्या शीतल मार्गाने प्रवास केला',
+      actionHydrate: 'दुपारच्या उष्णतेत सोबत पाण्याची बाटली ठेवली',
+      actionGeotag: 'सावली नसलेला बस थांबा किंवा उष्ण भाग जिओटॅग केला',
+      actionPlanting: 'स्थानिक रस्त्यासाठी महापालिका वृक्षारोपण पथकाची मागणी केली',
+      advisorPromptTitle: 'थेट एआय आरोग्य व प्रवास सल्ला',
+      advisorPromptDesc: 'पाणी पिण्याचे प्रमाण, दुपारच्या उष्णतेत सुरक्षित वेळा आणि सावलीच्या शिफारशी.',
+      openAdvisorBtn: 'एआय सुरक्षा सल्लागाराचा सल्ला घ्या',
     },
     map: {
       title: 'शीतल मार्ग नेव्हिगेशन',

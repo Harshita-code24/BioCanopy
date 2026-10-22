@@ -33,19 +33,6 @@ export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isCityOpen, setIsCityOpen] = useState(false);
-  const cityDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close city selector on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
-        setIsCityOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -108,39 +95,19 @@ export function AppLayout() {
             </div>
           </Link>
 
-          {/* City Selector Dropdown */}
-          <div className="relative" ref={cityDropdownRef}>
-            <button
-              onClick={() => setIsCityOpen(!isCityOpen)}
-              className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 py-1.5 text-xs font-bold text-white transition hover:border-emerald-400"
-            >
-              <MapPin className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="max-w-[70px] sm:max-w-none truncate">{selectedCity}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-[#94BDB2]" />
-            </button>
-
-            {isCityOpen && (
-              <div className="absolute left-0 mt-2 w-44 rounded-xl border border-emerald-500/30 bg-[#0F2420] p-1 shadow-2xl z-[1002]">
-                {cityMetrics.map((city) => (
-                  <button
-                    key={city.city}
-                    onClick={() => {
-                      setSelectedCity(city.city);
-                      setIsCityOpen(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold ${
-                      selectedCity === city.city
-                        ? 'bg-emerald-600 text-white'
-                        : 'text-[#94BDB2] hover:bg-emerald-500/10 hover:text-white'
-                    }`}
-                  >
-                    <span>{city.city}</span>
-                    <span className="text-[10px] opacity-80">{city.temperature}°C</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Assigned City Badge - Locked to User Profile */}
+          <button
+            type="button"
+            onClick={() => setIsProfileOpen(true)}
+            className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-500/30 bg-[#0F2420] px-2.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:border-emerald-400 group cursor-pointer"
+            title="Assigned City · Click to change city in Profile"
+          >
+            <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span className="max-w-[85px] sm:max-w-none truncate">{selectedCity}</span>
+            <span className="hidden sm:inline-block rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300 group-hover:bg-emerald-500/30 transition">
+              Profile
+            </span>
+          </button>
         </div>
 
         {/* Right side controls: Theme Toggle, Language Selector, User, Hazard Report */}

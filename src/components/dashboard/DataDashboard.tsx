@@ -202,26 +202,6 @@ export function DataDashboard() {
             Translating complex ground sensor feeds and satellite thermal telemetry into simple, actionable public signals.
           </p>
         </div>
-
-        {/* Multi-Language Switcher Toggle */}
-        <div className="flex items-center gap-2">
-          <Globe2 className="h-4 w-4 text-gray-400" />
-          <div className="inline-flex rounded-xl bg-gray-100 p-1">
-            {languages.map((item) => (
-              <button
-                key={item.code}
-                onClick={() => setLanguage(item.code)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                  language === item.code
-                    ? 'bg-[#14532D] text-white shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {item.native}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Real-Time Simplified 3-Color Metric Cards */}

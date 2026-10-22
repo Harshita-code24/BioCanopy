@@ -12,12 +12,20 @@ import {
   Trees,
   Wind,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { cityCoordinates } from '../data/mockData';
 import { useTranslation } from '../i18n/useTranslation';
 import { useAppState } from '../store/AppStateContext';
 import type { HazardCategory } from '../types';
+
+function MapRecenter({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, 13, { duration: 1.2 });
+  }, [center, map]);
+  return null;
+}
 
 export function ReportsPage() {
   const {
@@ -31,6 +39,11 @@ export function ReportsPage() {
   const [filterCategory, setFilterCategory] = useState<string>('All');
 
   const cityCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
+  const [mapCenter, setMapCenter] = useState<[number, number]>(cityCoords);
+
+  useEffect(() => {
+    setMapCenter(cityCoords);
+  }, [selectedCity]);
 
   const filteredReports = useMemo(() => {
     return reports.filter((rep) => {
@@ -80,14 +93,18 @@ export function ReportsPage() {
 
           <div className="relative h-[480px] w-full overflow-hidden rounded-2xl border border-emerald-500/20 bg-[#060F0D]">
             <MapContainer
-              center={cityCoords}
+              center={mapCenter}
               zoom={13}
               scrollWheelZoom={true}
               className="h-full w-full"
             >
+              <MapRecenter center={mapCenter} />
+
+              {/* 100% Free OpenStreetMap Tiles - Zero Watermarks & Zero API Key Required */}
               <TileLayer
-                attribution='&copy; CARTO'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                className="dark-tiles"
                 maxZoom={19}
               />
 
@@ -125,7 +142,12 @@ export function ReportsPage() {
                         <span className="font-semibold text-emerald-300">
                           {report.status}
                         </span>
-                        <span className="text-gray-400">{report.submittedAt}</span>
+                        <button
+                          onClick={() => upvoteReport(report.id)}
+                          className="font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                        >
+                          👍 {report.upvotes || 1}
+                        </button>
                       </div>
                     </div>
                   </Popup>
@@ -195,7 +217,8 @@ export function ReportsPage() {
                 return (
                   <div
                     key={report.id}
-                    className="rounded-2xl border border-emerald-500/20 bg-[#0A1B17] p-4 transition hover:border-emerald-400/40"
+                    onClick={() => setMapCenter(report.coordinates)}
+                    className="cursor-pointer rounded-2xl border border-emerald-500/20 bg-[#0A1B17] p-4 transition hover:border-emerald-400/40 hover:bg-[#0C221D]"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
@@ -251,7 +274,10 @@ export function ReportsPage() {
                       </span>
 
                       <button
-                        onClick={() => upvoteReport(report.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          upvoteReport(report.id);
+                        }}
                         className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300 transition active:scale-95"
                         title={t.reports.upvotePrompt}
                       >

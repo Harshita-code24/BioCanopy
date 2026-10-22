@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useAuth } from './AuthContext';
 import {
   cityMetrics,
   initialAuthorityZones,
@@ -72,6 +73,7 @@ const CITY_KEY = 'biocanopy_city_v2';
 const ROUTES_HISTORY_KEY = 'biocanopy_routes_history_v2';
 const API_REPORTS_URL = import.meta.env.VITE_API_REPORTS_URL || 'http://localhost:5000/api/reports';
 const API_TELEMETRY_URL = import.meta.env.VITE_API_TELEMETRY_URL || 'http://localhost:5000/api/telemetry';
+const API_DISPATCHES_URL = import.meta.env.VITE_API_DISPATCHES_URL || 'http://localhost:5000/api/dispatches';
 
 export const defaultVisitedRoutes: VisitedRoute[] = [
   {
@@ -118,7 +120,8 @@ export const defaultVisitedRoutes: VisitedRoute[] = [
 const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [selectedCity, setSelectedCity] = useState<string>(cityMetrics[0].city);
+  const { user } = useAuth();
+  const [selectedCity, setSelectedCity] = useState<string>(() => user?.city || cityMetrics[0].city);
   const [telemetry, setTelemetry] = useState<Record<string, CityMetric>>(() => {
     const map: Record<string, CityMetric> = {};
     for (const m of cityMetrics) {
@@ -162,7 +165,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [activeRouteId, setActiveRouteId] = useState<'cool' | 'fastest'>('cool');
   const [toast, setToast] = useState<ToastInfo | null>(null);
 
-  // Load saved state from LocalStorage on mount
+  // Load saved state from LocalStorage on mount and anchor to user's registered profile city
   useEffect(() => {
     try {
       const savedCity = localStorage.getItem(CITY_KEY);
@@ -171,7 +174,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const savedTheme = localStorage.getItem(THEME_KEY) as 'dark' | 'light' | null;
       const savedLang = localStorage.getItem(LANG_KEY) as Language | null;
 
-      if (savedCity) setSelectedCity(savedCity);
+      if (user?.city) {
+        setSelectedCity(user.city);
+      } else if (savedCity) {
+        setSelectedCity(savedCity);
+      }
       if (savedReports) setReports(JSON.parse(savedReports));
       if (savedZones) setAuthorityZones(JSON.parse(savedZones));
       if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
@@ -183,7 +190,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error('Failed to load local storage state:', e);
     }
-  }, []);
+  }, [user?.city]);
+
+  // Synchronize active city when user switches city in Profile
+  useEffect(() => {
+    if (user?.city && user.city !== selectedCity) {
+      setSelectedCity(user.city);
+      try {
+        localStorage.setItem(CITY_KEY, user.city);
+      } catch {}
+    }
+  }, [user?.city]);
 
   // Fetch live community hazard reports from SQLite backend
   useEffect(() => {
@@ -202,6 +219,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     };
     fetchBackendReports();
   }, []);
+
+  // Fetch live municipal tree-planting dispatches from SQLite backend
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDispatches = async () => {
+      try {
+        const res = await fetch(`${API_DISPATCHES_URL}?city=${selectedCity}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && Array.isArray(data) && data.length > 0) {
+            setAuthorityZones(data);
+          }
+        }
+      } catch (err) {
+        console.warn('Backend dispatches API offline, using cached zones:', err);
+      }
+    };
+    fetchDispatches();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCity]);
 
   // Fetch live telemetry for selected city from backend API
   useEffect(() => {
@@ -431,7 +470,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const dispatchPlantingTask = (zoneId: string) => {
+  const dispatchPlantingTask = async (zoneId: string) => {
     const dispatchNum = `ORD-${selectedCity.slice(0, 3).toUpperCase()}-2026-${Math.floor(
       100 + Math.random() * 900,
     )}`;
@@ -456,6 +495,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           : rep,
       ),
     );
+
+    // Persist status change to backend SQLite
+    try {
+      await fetch(`${API_DISPATCHES_URL}/${zoneId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Task Dispatched' }),
+      });
+    } catch (err) {
+      console.warn('Failed to sync dispatch status to backend:', err);
+    }
 
     showToast(
       `Tree-Planting Task Dispatched! Order #${dispatchNum} logged for municipal field squad.`,

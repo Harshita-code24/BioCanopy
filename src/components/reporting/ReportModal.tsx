@@ -12,21 +12,19 @@ import {
   Wind,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
-import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { cityCoordinates } from '../../data/mockData';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppState } from '../../store/AppStateContext';
 import type { HazardCategory } from '../../types';
 
 // Mini Map Interactive Click Handler to Pick GPS Pin
-function LocationPicker({
-  position,
-  onChange,
-}: {
-  position: [number, number];
-  onChange: (pos: [number, number]) => void;
-}) {
+function LocationPicker({ position, onChange }: { position: [number, number]; onChange: (pos: [number, number]) => void; }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(position, map.getZoom());
+  }, [position, map]);
   useMapEvents({
     click(e) {
       onChange([e.latlng.lat, e.latlng.lng]);
@@ -249,8 +247,8 @@ export function ReportModal() {
                 className="h-full w-full"
               >
                 <TileLayer
-                  attribution='&copy; CARTO'
-                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; OpenStreetMap'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <LocationPicker position={coords} onChange={setCoords} />
               </MapContainer>

@@ -23,7 +23,7 @@ import {
   Wind,
   X,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useAppState } from '../../store/AppStateContext';
 import { useAuth } from '../../store/AuthContext';
@@ -65,6 +65,11 @@ export function UserProfileModal() {
   const [isEditingCity, setIsEditingCity] = useState(false);
   const [newCity, setNewCity] = useState(userCity);
   const [isSavingCity, setIsSavingCity] = useState(false);
+
+  // Synchronize local city edit state with user's assigned city
+  useEffect(() => {
+    setNewCity(userCity);
+  }, [userCity, isProfileOpen]);
 
   const handleSavePassword = async () => {
     if (newPassword.trim().length < 6) {

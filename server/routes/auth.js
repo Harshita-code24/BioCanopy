@@ -104,22 +104,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // If custom name or city provided at login, update user record
-    if (name?.trim() || city?.trim()) {
-      try {
-        const updateStmt = db.prepare('UPDATE users SET name = COALESCE(?, name), city = COALESCE(?, city) WHERE id = ?');
-        updateStmt.run(name?.trim() || null, city?.trim() || null, user.id);
-      } catch (e) {
-        console.warn('Could not update name/city on login:', e);
-      }
-    }
-
     const userPayload = {
       id: user.id,
-      name: name?.trim() || user.name,
+      name: user.name,
       email: user.email,
       role: user.role,
-      city: city?.trim() || user.city || 'Delhi',
+      city: user.city || 'Delhi',
     };
 
     // Generate JWT token
@@ -226,6 +216,91 @@ router.post('/google-login', async (req, res) => {
   } catch (err) {
     console.error('Error during Google login:', err);
     return res.status(500).json({ message: 'Internal server error during Google login.' });
+  }
+});
+
+// GET /api/auth/google/oauth-config - Check if live Google OAuth 2.0 is configured
+router.get('/google/oauth-config', (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) {
+    return res.json({ configured: false });
+  }
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback';
+  const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=select_account`;
+  return res.json({ configured: true, oauthUrl });
+});
+
+// GET /api/auth/google/callback - Live Google OAuth callback handler
+router.get('/google/callback', async (req, res) => {
+  const { code } = req.query;
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback';
+
+  if (!code || !clientId || !clientSecret) {
+    return res.redirect('http://localhost:5173/auth/google');
+  }
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) {
+      return res.redirect('http://localhost:5173/login?error=google_auth_failed');
+    }
+
+    const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const profile = await userRes.json();
+
+    const trimmedEmail = profile.email.toLowerCase();
+    const displayName = profile.name || profile.given_name || 'Google Citizen';
+    const userRole = trimmedEmail.includes('admin') ? 'admin' : 'citizen';
+
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(trimmedEmail);
+    if (!user) {
+      const randomPassword = `google_${Math.random().toString(36).slice(2, 12)}!`;
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      const result = db.prepare('INSERT INTO users (name, email, password, role, city) VALUES (?, ?, ?, ?, ?)').run(
+        displayName,
+        trimmedEmail,
+        hashedPassword,
+        userRole,
+        'Delhi'
+      );
+      user = {
+        id: Number(result.lastInsertRowid),
+        name: displayName,
+        email: trimmedEmail,
+        role: userRole,
+        city: 'Delhi',
+      };
+      if (userRole === 'citizen') {
+        sendWelcomeEmail({ email: trimmedEmail, name: displayName, role: 'citizen', city: 'Delhi' });
+      }
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.redirect(`http://localhost:5173/dashboard?google_token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
+  } catch (err) {
+    console.error('Error during Google OAuth callback:', err);
+    return res.redirect('http://localhost:5173/login?error=oauth_error');
   }
 });
 
