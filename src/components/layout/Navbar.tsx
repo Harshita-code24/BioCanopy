@@ -8,7 +8,6 @@ import {
   Navigation,
   ShieldCheck,
   Sparkles,
-  Trees,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cityMetrics, translations } from '../../data/mockData';
@@ -44,8 +43,8 @@ export function Navbar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Brand Logo & Presentation Subtitle */}
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#14532D] text-white shadow-md shadow-green-900/20 ring-2 ring-emerald-500/20">
-              <Trees className="h-6 w-6 text-emerald-400" />
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1.5 shadow-md shadow-green-900/20">
+              <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -249,8 +248,8 @@ export function Navbar() {
           <div className="w-full max-w-lg rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#14532D] text-emerald-400">
-                  <Trees className="h-6 w-6" />
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1.5 shadow-md">
+                  <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">

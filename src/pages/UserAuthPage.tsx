@@ -8,7 +8,6 @@ import {
   Mail,
   MapPin,
   ShieldCheck,
-  Trees,
   User as UserIcon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -179,8 +178,8 @@ export function UserAuthPage() {
       >
         {/* BioCanopy Brand Logo and Clean Title */}
         <div className="mb-5 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow mb-2.5">
-            <Trees className="h-8 w-8" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-2 shadow-[0_0_25px_rgba(16,185,129,0.35)] mb-3">
+            <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
           </div>
           <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
             Bio<span className="text-emerald-400">Canopy</span>

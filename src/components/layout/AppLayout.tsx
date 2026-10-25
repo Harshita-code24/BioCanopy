@@ -10,7 +10,6 @@ import {
   Navigation,
   ShieldCheck,
   Sparkles,
-  Trees,
   User,
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -84,9 +83,9 @@ export function AppLayout() {
           </button>
 
           {/* Brand Logo in Top Bar */}
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
-              <Trees className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Link to="/dashboard" className="flex items-center gap-2 group">
+            <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1 shadow-[0_0_15px_rgba(16,185,129,0.25)] transition group-hover:scale-105 group-hover:border-emerald-400">
+              <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             </div>
             <div className="hidden xs:block">
               <span className="font-black text-white text-sm sm:text-base tracking-tight">
@@ -173,8 +172,8 @@ export function AppLayout() {
                 {/* Curtain Header - cleanly formatted without duplicate user & roll-up pills */}
                 <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-glow">
-                      <Trees className="h-6 w-6" />
+                    <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1.5 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                      <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
