@@ -30,12 +30,13 @@ function MapRecenter({ center }: { center: [number, number] }) {
 export function ReportsPage() {
   const {
     reports,
+    upvotedReportIds,
     selectedCity,
     setIsReportModalOpen,
     updateReportStatus,
     upvoteReport,
   } = useAppState();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [filterCategory, setFilterCategory] = useState<string>('All');
 
   const cityCoords = cityCoordinates[selectedCity] || [28.6139, 77.209];
@@ -142,12 +143,23 @@ export function ReportsPage() {
                         <span className="font-semibold text-emerald-300">
                           {report.status}
                         </span>
-                        <button
-                          onClick={() => upvoteReport(report.id)}
-                          className="font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
-                        >
-                          👍 {report.upvotes || 1}
-                        </button>
+                        {(() => {
+                          const hasVoted = upvotedReportIds.includes(report.id) || !!report.hasUpvoted;
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => upvoteReport(report.id)}
+                              className={`font-bold flex items-center gap-1 rounded px-2 py-0.5 text-[10px] transition ${
+                                hasVoted
+                                  ? 'bg-emerald-500/30 text-emerald-300 cursor-default'
+                                  : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20'
+                              }`}
+                              title={hasVoted ? 'You have upvoted this report' : 'Upvote this report'}
+                            >
+                              {hasVoted ? '✓ Upvoted' : '👍 Upvote'} ({report.upvotes || 1})
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </Popup>
@@ -273,17 +285,31 @@ export function ReportsPage() {
                         {report.submittedAt} · {report.source}
                       </span>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          upvoteReport(report.id);
-                        }}
-                        className="flex items-center gap-1 font-bold text-emerald-400 hover:text-emerald-300 transition active:scale-95"
-                        title={t.reports.upvotePrompt}
-                      >
-                        <ThumbsUp className="h-3 w-3" />
-                        <span>{t.common.upvote} ({report.upvotes || 1})</span>
-                      </button>
+                      {(() => {
+                        const hasVoted = upvotedReportIds.includes(report.id) || !!report.hasUpvoted;
+                        return (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              upvoteReport(report.id);
+                            }}
+                            className={`flex items-center gap-1.5 font-bold text-xs rounded-xl px-2.5 py-1 transition ${
+                              hasVoted
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm cursor-default'
+                                : 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/20 active:scale-95'
+                            }`}
+                            title={hasVoted ? 'You have already upvoted this report' : t.reports.upvotePrompt}
+                          >
+                            <ThumbsUp className={`h-3.5 w-3.5 ${hasVoted ? 'fill-emerald-400 text-emerald-400' : 'text-emerald-400'}`} />
+                            <span>
+                              {hasVoted
+                                ? (language === 'hi' ? 'समर्थन दिया' : language === 'mr' ? 'मत दिले' : 'Upvoted')
+                                : t.common.upvote} ({report.upvotes || 1})
+                            </span>
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
                 );

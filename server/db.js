@@ -89,6 +89,17 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS report_upvotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_id INTEGER NOT NULL,
+    user_identifier TEXT NOT NULL COLLATE NOCASE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(report_id, user_identifier),
+    FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE
+  )
+`);
+
 // Pre-seed initial community hazard reports
 try {
   const seedReports = [

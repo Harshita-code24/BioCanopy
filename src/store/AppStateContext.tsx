@@ -38,6 +38,8 @@ type AppStateValue = {
   language: Language;
   setLanguage: (lang: Language) => void;
   reports: Report[];
+  upvotedReportIds: string[];
+  hasUserUpvoted: (id: string) => boolean;
   addReport: (
     report: Omit<Report, 'id' | 'submittedAt' | 'status' | 'source'>,
   ) => void;
@@ -137,6 +139,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [authorityZones, setAuthorityZones] =
     useState<AuthorityZone[]>(initialAuthorityZones);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const UPVOTES_KEY_PREFIX = 'biocanopy_upvotes_';
+  const [upvotedReportIds, setUpvotedReportIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(`${UPVOTES_KEY_PREFIX}${user?.email || 'guest'}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Synchronize upvoted IDs when active user changes
+  useEffect(() => {
+    const key = `${UPVOTES_KEY_PREFIX}${user?.email || 'guest'}`;
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        setUpvotedReportIds(JSON.parse(saved));
+      } else {
+        setUpvotedReportIds([]);
+      }
+    } catch {
+      setUpvotedReportIds([]);
+    }
+  }, [user?.email]);
+
+  const hasUserUpvoted = (id: string) => upvotedReportIds.includes(id);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [visitedRoutes, setVisitedRoutes] = useState<VisitedRoute[]>(() => {
     try {
@@ -202,15 +230,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.city]);
 
-  // Fetch live community hazard reports from SQLite backend
+  // Fetch live community hazard reports from SQLite backend with user vote tracking
   useEffect(() => {
     const fetchBackendReports = async () => {
       try {
-        const res = await fetch(API_REPORTS_URL);
+        const userIdentifier = user?.email || 'guest';
+        const res = await fetch(`${API_REPORTS_URL}?userIdentifier=${encodeURIComponent(userIdentifier)}`);
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
             setReports(data);
+            const serverVoted = data.filter((r: Report) => r.hasUpvoted).map((r: Report) => r.id);
+            if (serverVoted.length > 0) {
+              setUpvotedReportIds((prev) => {
+                const merged = Array.from(new Set([...prev, ...serverVoted]));
+                try {
+                  localStorage.setItem(`${UPVOTES_KEY_PREFIX}${user?.email || 'guest'}`, JSON.stringify(merged));
+                } catch {}
+                return merged;
+              });
+            }
           }
         }
       } catch (err) {
@@ -218,7 +257,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
     };
     fetchBackendReports();
-  }, []);
+  }, [user?.email]);
 
   // Fetch live municipal tree-planting dispatches from SQLite backend
   useEffect(() => {
@@ -425,17 +464,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   };
 
   const upvoteReport = async (id: string) => {
-    // Optimistic UI update
+    // Constraint: One user can cast only one vote per report
+    if (upvotedReportIds.includes(id)) {
+      showToast('You have already upvoted this report. One vote per citizen.', 'info');
+      return;
+    }
+
+    const storageKey = `${UPVOTES_KEY_PREFIX}${user?.email || 'guest'}`;
+    const nextUpvoted = [...upvotedReportIds, id];
+    setUpvotedReportIds(nextUpvoted);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(nextUpvoted));
+    } catch {}
+
+    // Optimistic UI update: increment count by exactly 1 and mark as voted
     setReports((prev) =>
       prev.map((rep) =>
-        rep.id === id ? { ...rep, upvotes: (rep.upvotes || 0) + 1 } : rep,
+        rep.id === id ? { ...rep, upvotes: (rep.upvotes || 0) + 1, hasUpvoted: true } : rep,
       ),
     );
 
     try {
-      await fetch(`${API_REPORTS_URL}/${id}/upvote`, {
+      const userIdentifier = user?.email || 'guest';
+      const res = await fetch(`${API_REPORTS_URL}/${id}/upvote`, {
         method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIdentifier }),
       });
+
+      if (res.status === 409) {
+        showToast('You have already cast a vote for this report.', 'info');
+        return;
+      }
+
       showToast('Report upvoted! Priority boosted.', 'success');
     } catch (err) {
       console.warn('Failed to upvote on server:', err);
@@ -527,6 +588,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setTheme,
       toggleTheme,
       reports,
+      upvotedReportIds,
+      hasUserUpvoted,
       addReport,
       upvoteReport,
       deleteReport,
@@ -556,6 +619,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       language,
       theme,
       reports,
+      upvotedReportIds,
       authorityZones,
       isReportModalOpen,
       isProfileOpen,

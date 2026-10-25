@@ -23,7 +23,7 @@ function formatTimeAgo(dateString) {
 // GET /api/reports - Fetch all citizen reports (filterable by city and category)
 router.get('/', (req, res) => {
   try {
-    const { city, category } = req.query;
+    const { city, category, userIdentifier } = req.query;
 
     let query = 'SELECT * FROM reports';
     const params = [];
@@ -48,6 +48,19 @@ router.get('/', (req, res) => {
     const stmt = db.prepare(query);
     const rows = stmt.all(...params);
 
+    // Fetch set of reports already upvoted by this user/device
+    let votedSet = new Set();
+    if (userIdentifier) {
+      try {
+        const votedRows = db
+          .prepare('SELECT report_id FROM report_upvotes WHERE user_identifier = ?')
+          .all(userIdentifier.trim().toLowerCase());
+        votedSet = new Set(votedRows.map((r) => r.report_id));
+      } catch (e) {
+        // ignore if table newly initialized
+      }
+    }
+
     const formattedReports = rows.map((row) => ({
       id: `rep-${row.id}`,
       city: row.city,
@@ -59,6 +72,7 @@ router.get('/', (req, res) => {
       status: row.status,
       source: row.source,
       upvotes: row.upvotes || 1,
+      hasUpvoted: votedSet.has(row.id),
       submittedAt: formatTimeAgo(row.created_at),
     }));
 
@@ -151,7 +165,7 @@ router.post('/', (req, res) => {
   }
 });
 
-// PATCH /api/reports/:id/upvote - Upvote a community report
+// PATCH /api/reports/:id/upvote - Upvote a community report (Strict: 1 vote per citizen)
 router.patch('/:id/upvote', (req, res) => {
   try {
     const rawId = req.params.id;
@@ -161,6 +175,14 @@ router.patch('/:id/upvote', (req, res) => {
       return res.status(400).json({ message: 'Invalid report ID.' });
     }
 
+    const userIdentifier = (
+      req.body?.userIdentifier ||
+      req.headers['x-user-identifier'] ||
+      'citizen_default'
+    )
+      .trim()
+      .toLowerCase();
+
     const getStmt = db.prepare('SELECT upvotes FROM reports WHERE id = ?');
     const existing = getStmt.get(numericId);
 
@@ -168,6 +190,41 @@ router.patch('/:id/upvote', (req, res) => {
       return res.status(404).json({ message: 'Report not found.' });
     }
 
+    // Ensure report_upvotes table exists
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS report_upvotes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        report_id INTEGER NOT NULL,
+        user_identifier TEXT NOT NULL COLLATE NOCASE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(report_id, user_identifier),
+        FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE
+      )
+    `);
+
+    // Check if this user has already cast a vote for this report
+    const checkStmt = db.prepare(
+      'SELECT id FROM report_upvotes WHERE report_id = ? AND user_identifier = ?'
+    );
+    const alreadyVoted = checkStmt.get(numericId, userIdentifier);
+
+    if (alreadyVoted) {
+      return res.status(409).json({
+        message: 'You have already upvoted this report. Each citizen can vote only once.',
+        alreadyUpvoted: true,
+        id: `rep-${numericId}`,
+        upvotes: existing.upvotes || 1,
+        hasUpvoted: true,
+      });
+    }
+
+    // Record the user's vote
+    const insertVoteStmt = db.prepare(
+      'INSERT INTO report_upvotes (report_id, user_identifier) VALUES (?, ?)'
+    );
+    insertVoteStmt.run(numericId, userIdentifier);
+
+    // Increment upvote count
     const newUpvotes = (existing.upvotes || 0) + 1;
     const updateStmt = db.prepare('UPDATE reports SET upvotes = ? WHERE id = ?');
     updateStmt.run(newUpvotes, numericId);
@@ -176,6 +233,7 @@ router.patch('/:id/upvote', (req, res) => {
       message: 'Report upvoted successfully!',
       id: `rep-${numericId}`,
       upvotes: newUpvotes,
+      hasUpvoted: true,
     });
   } catch (err) {
     console.error('Error upvoting report:', err);
