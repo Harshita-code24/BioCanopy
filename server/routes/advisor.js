@@ -84,24 +84,24 @@ function evaluateClinicalRules({ temp, city, humidity = 45, aqi = 140, persona =
       level = 'तीव्र लू चेतावनी (रेड अलर्ट)';
       badge = 'अत्यधिक आपातकालीन स्तर';
       badgeColor = 'bg-red-500/20 text-red-300 border-red-500/40';
-      headline = 'भीषण ग्रीष्म लहर: बाह्य गतिविधियां जानलेवा हो सकती हैं';
-      body = `डामर का तापमान ${asphaltTemp}°C पार कर चुका है। प्रत्यक्ष सूर्य में 15 मिनट से अधिक न रहें। हीटस्ट्रोक और डिहाइड्रेशन का खतरा अधिकतम है।`;
+      headline = 'भीषण लू — धूप में बाहर निकलने से बचें';
+      body = `सड़कें ५०°C से अधिक गर्म हैं। जरूरी न हो तो यात्रा टालें या शीतल मार्ग चुनें।`;
       hydration = 'प्रति २०-३० मिनट में ५०० मिली ओआरएस या नींबू पानी पिएं';
       safeHours = 'प्रातः ९:३० से पहले या सायं ७:०० के बाद';
     } else if (lang === 'mr') {
       level = 'अति तीव्र उष्णतेची लाट (रेड अलर्ट)';
       badge = 'अत्यंत धोकादायक';
       badgeColor = 'bg-red-500/20 text-red-300 border-red-500/40';
-      headline = 'अति तीव्र उष्णतेचा इशारा: दुपारच्या उन्हात बाहेर पडणे टाळा';
-      body = `डांबरी रस्त्यांचे तापमान ${asphaltTemp}°C च्या वर पोहोचले आहे. सनस्ट्रोक आणि निर्जलीकरणाचा तीव्र धोका आहे. सावलीच्या मार्गांचाच वापर करा.`;
+      headline = 'अतिउष्णतेची लाट — बाहेर पडणे टाळा';
+      body = `रस्ते ५०°C पेक्षा जास्त तापले आहेत. अत्यावश्यक नसल्यास प्रवास टाळा.`;
       hydration = 'दर २०-३० मिनिटांनी ५०० मिली ओआरएस किंवा इलेक्ट्रोलाइट्स प्या';
       safeHours = 'सकाळी ९:३० पूर्वी किंवा संध्याकाळी ७:०० नंतर';
     } else {
       level = 'Extreme Heatwave Response (Red Alert)';
       badge = 'Extreme Warning';
       badgeColor = 'bg-red-500/20 text-red-300 border-red-500/40';
-      headline = 'Severe Solar Load: Exposed Outdoor Transit Poses Acute Health Hazard';
-      body = `Asphalt surface temperature reaches ~${asphaltTemp}°C under direct sun. Limit continuous exposure to under 15 mins. Significant risk of heat cramps and hyperthermia.`;
+      headline = 'Extreme Heatwave — Avoid Outdoor Transit';
+      body = `Road surface temperatures exceed ~${asphaltTemp}°C. Postpone travel and stay in cool areas.`;
       hydration = 'Drink 500ml oral rehydration solution (ORS) or water every 20-30 mins';
       safeHours = 'Before 9:30 AM or after 7:00 PM';
     }
@@ -111,24 +111,24 @@ function evaluateClinicalRules({ temp, city, humidity = 45, aqi = 140, persona =
       level = 'दोपहर की उष्णता चेतावनी (ऑरेंज अलर्ट)';
       badge = 'उच्च सतर्कता';
       badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-      headline = 'तेज धूप व उमस: छायादार हरित गलियारों का उपयोग अनिवार्य';
-      body = `डामरी सड़कें ऊष्मा संचित कर रही हैं (${asphaltTemp}°C)। दोपहर १२ से ४ के मध्य गैर-जरूरी आवागमन टालें तथा शीतलता केंद्र खोजें।`;
+      headline = 'तीखी धूप — सीधे सूर्य के संपर्क से बचें';
+      body = `सड़कें गर्म हैं (${asphaltTemp}°C)। दोपहर १२ से ४ बजे तक खिड़कियाँ बंद रखें और बाहर छायादार रास्तों से चलें।`;
       hydration = 'प्रति ४० मिनट में ४०० मिली जल व नारियल पानी लें';
       safeHours = 'प्रातः ११:०० से पहले या सायं ५:३० के बाद';
     } else if (lang === 'mr') {
       level = 'दुपारचा उष्णता इशारा (ऑरेंज अलर्ट)';
       badge = 'उच्च दक्षता';
       badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-      headline = 'दुपारची तीव्र उष्णता: सावलीच्या मार्गानेच प्रवास करा';
-      body = `रस्त्यांचे तापमान ${asphaltTemp}°C असून थेट उन्हामुळे थकवा येऊ शकतो. दुपारी १२ ते ४ दरम्यान सावली नसलेल्या ठिकाणी थांबणे टाळा.`;
+      headline = 'तीव्र ऊन — थेट उन्हात जाणे टाळा';
+      body = `रस्ते तापले आहेत (${asphaltTemp}°C). दुपारी १२ ते ४ दरम्यान खिडक्या बंद ठेवा आणि सावलीतूनच चाला.`;
       hydration = 'दर ४० मिनिटांनी ४०० मिली पाणी किंवा लिंबू सरबत प्या';
       safeHours = 'सकाळी ११:०० पूर्वी किंवा संध्याकाळी ५:३० नंतर';
     } else {
       level = 'Midday Thermal Alert (Orange Advisory)';
       badge = 'High Advisory';
       badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-      headline = 'Intense Midday Solar Gain: Utilize Shaded Canopy Corridors';
-      body = `Unshaded asphalt radiating at ~${asphaltTemp}°C. Avoid direct sun between 12:00 PM and 4:00 PM. High cumulative thermal strain on pedestrians.`;
+      headline = 'Peak Solar Heat — Limit Direct Sun Exposure';
+      body = `Roads are radiating heat (~${asphaltTemp}°C). Keep blinds closed between 12–4 PM and walk along shaded tree canopies outdoors.`;
       hydration = 'Drink 400ml fluids every 40-45 mins with added electrolytes';
       safeHours = 'Before 11:00 AM or after 5:30 PM';
     }
@@ -191,9 +191,9 @@ function evaluateClinicalRules({ temp, city, humidity = 45, aqi = 140, persona =
   // Demographic specific guidance
   const personaTips = {
     general: {
-      en: 'Carry a refillable water bottle, wear UV-protective sunglasses, and favor tree-canopied pedestrian sidewalks.',
-      hi: 'पानी की बोतल साथ रखें, यूवी चश्मा पहनें और पेड़ों की छाया वाले रास्तों का चयन करें।',
-      mr: 'पाण्याची बाटली सोबत ठेवा, गॉगल वापरा आणि सावलीच्या रस्त्यांचा वापर करा.',
+      en: 'Wear light cotton clothes and carry drinking water.',
+      hi: 'हल्के सूती कपड़े पहनें और पीने का पानी साथ रखें।',
+      mr: 'हलके सुती कपडे वापरा आणि सोबत पाणी ठेवा.',
     },
     elderly: {
       en: 'Strictly avoid direct sunlight between 11:30 AM - 4:30 PM. Cardiovascular strain increases sharply at ambient temps >38°C. Stay in well-ventilated or cool rooms.',

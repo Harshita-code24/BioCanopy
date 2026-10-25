@@ -536,18 +536,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       highAdvisory: 'HIGH ADVISORY',
       moderateAdvisory: 'MODERATE',
       comfortableWindow: 'SAFE',
-      guidanceHeatwaveHeadline: 'Stay indoors until 5:30 PM — Extreme asphalt radiation detected',
+      guidanceHeatwaveHeadline: 'Extreme Heatwave — Avoid Outdoor Transit',
       guidanceHeatwaveBody:
-        'Unshaded concrete surface temperatures exceed 50°C. Postpone non-essential travel. If transit is unavoidable, utilize the 82% shaded green cool path.',
-      guidanceSmogHeadline: 'Limit unshaded transit — Peak solar radiant heat active',
+        'Road surface temperatures exceed 50°C. Postpone travel and use shaded green routes.',
+      guidanceSmogHeadline: 'Peak Solar Heat — Limit Direct Sun Exposure',
       guidanceSmogBody:
-        'Keep windows and blinds closed between 12 PM and 4 PM to prevent indoor heat trapping. Walk strictly under shaded neem & banyan tree arches.',
-      guidanceModerateHeadline: 'Manageable conditions with hydration and shaded corridors',
+        'Keep blinds closed between 12–4 PM. Walk along shaded tree canopies when outdoors.',
+      guidanceModerateHeadline: 'Warm Conditions — Safe with Shaded Corridors',
       guidanceModerateBody:
-        'Ambient conditions are warm but within pedestrian safety thresholds. Utilize shaded tree corridors to enjoy 3-4°C microclimate relief.',
-      guidanceComfortHeadline: 'Optimal outdoor conditions — Safe for transit & recreation',
+        'Moderate heat. Use shaded tree paths to stay 3–4°C cooler.',
+      guidanceComfortHeadline: 'Pleasant Weather — Safe for Outdoor Transit',
       guidanceComfortBody:
-        'Temperatures are within comfortable levels. Open windows for cross-ventilation and take advantage of outdoor green parks.',
+        'Mild temperatures. Ideal for walking, cycling, and park visits.',
     },
     admin: {
       title: 'Municipal Authority Command Center',
@@ -867,18 +867,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       highAdvisory: 'उच्च परामर्श',
       moderateAdvisory: 'मध्यम',
       comfortableWindow: 'सुरक्षित',
-      guidanceHeatwaveHeadline: 'शाम ५:३० तक बाहर जाने से बचें — सतह पर अत्यधिक ताप दर्ज',
+      guidanceHeatwaveHeadline: 'भीषण लू — धूप में बाहर निकलने से बचें',
       guidanceHeatwaveBody:
-        'धूप वाले कंक्रीट का तापमान ५०°C से ऊपर पहुँच गया है। गैर-जरूरी यात्रा टालें या ८२% छायादार शीतल मार्ग चुनें।',
-      guidanceSmogHeadline: 'धूप वाले रास्तों से बचें — दोपहर का सौर विकिरण सक्रिय',
+        'सड़कें ५०°C से अधिक गर्म हैं। जरूरी न हो तो यात्रा टालें या शीतल मार्ग चुनें।',
+      guidanceSmogHeadline: 'तीखी धूप — सीधे सूर्य के संपर्क से बचें',
       guidanceSmogBody:
-        'दोपहर १२ से शाम ४ बजे तक खिड़कियाँ बंद रखें ताकि अंदरूनी हवा गर्म न हो। नीम और बरगद के छायादार पेड़ों के नीचे ही चलें।',
-      guidanceModerateHeadline: 'पर्याप्त जलपान और छायादार रास्तों के साथ सामान्य स्थिति',
+        'दोपहर १२ से ४ बजे तक खिड़कियाँ बंद रखें और बाहर छायादार रास्तों से चलें।',
+      guidanceModerateHeadline: 'सामान्य गर्म मौसम — छायादार रास्तों से चलें',
       guidanceModerateBody:
-        'मौसम गर्म है परंतु सुरक्षित सीमा में है। ३-४°C राहत के लिए वृक्ष आच्छादित गलियारों का प्रयोग करें।',
-      guidanceComfortHeadline: 'उत्तम बाहरी मौसम — आवागमन व सैर के लिए सुरक्षित',
+        'मौसम सुरक्षित है। ३-४°C राहत के लिए पेड़ों की छाया का प्रयोग करें।',
+      guidanceComfortHeadline: 'सुहावना मौसम — आवागमन के लिए अनुकूल',
       guidanceComfortBody:
-        'तापमान आरामदायक है। ताजी हवा के लिए खिड़कियाँ खोलें और हरे-भरे उद्यानों का आनंद लें।',
+        'तापमान सुखद है। पैदल चलने और पार्कों में घूमने के लिए उत्तम समय।',
     },
     admin: {
       title: 'नगरपालिका प्राधिकरण कमांड सेंटर',
@@ -1198,18 +1198,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       highAdvisory: 'उच्च दक्षता सूचना',
       moderateAdvisory: 'मध्यम',
       comfortableWindow: 'सुरक्षित',
-      guidanceHeatwaveHeadline: 'संध्याकाळी ५:३० पर्यंत बाहेर जाणे टाळा — रस्ते प्रचंड तापले आहेत',
+      guidanceHeatwaveHeadline: 'अतिउष्णतेची लाट — बाहेर पडणे टाळा',
       guidanceHeatwaveBody:
-        'उन्हातील डांबराचे तापमान ५०°C पेक्षा जास्त आहे. महत्वाचे नसल्यास प्रवास टाळा किंवा ८२% सावली असलेला शीतल मार्ग वापरा.',
-      guidanceSmogHeadline: 'उन्हातील प्रवास टाळा — दुपारची उष्णता जास्त आहे',
+        'रस्ते ५०°C पेक्षा जास्त तापले आहेत. अत्यावश्यक नसल्यास प्रवास टाळा.',
+      guidanceSmogHeadline: 'तीव्र ऊन — थेट उन्हात जाणे टाळा',
       guidanceSmogBody:
-        'दुपारी १२ ते ४ दरम्यान खिडक्या बंद ठेवा जेणेकरून घरातील हवा गरम होणार नाही. कडुनिंब आणि वडाच्या सावलीतूनच चाला.',
-      guidanceModerateHeadline: 'भरपूर पाणी आणि सावलीच्या मार्गांसह सामान्य परिस्थिती',
+        'दुपारी १२ ते ४ दरम्यान खिडक्या बंद ठेवा आणि सावलीतूनच चाला.',
+      guidanceModerateHeadline: 'उबदार हवामान — सावलीच्या मार्गांचा वापर करा',
       guidanceModerateBody:
-        'हवामान उबदार आहे पण सुरक्षित मर्यादेत आहे. ३-४°C थंडाव्यासाठी झाडांच्या सावलीचा वापर करा.',
-      guidanceComfortHeadline: 'उत्तम हवामान — प्रवासासाठी आणि फिरण्यासाठी सुरक्षित',
+        'हवामान सुरक्षित आहे. ३-४°C थंडाव्यासाठी झाडांच्या सावलीतून चाला.',
+      guidanceComfortHeadline: 'आनंददायी हवामान — बाहेर फिरण्यासाठी उत्तम',
       guidanceComfortBody:
-        'तापमान सुखद आहे. खेळत्या हवेसाठी खिडक्या उघड्या ठेवा आणि हिरव्यागार बागांचा आनंद घ्या.',
+        'तापमान सुखद आहे. चालण्यासाठी आणि उद्यानात जाण्यासाठी उत्तम वेळ.',
     },
     admin: {
       title: 'महानगरपालिका प्रशासन नियंत्रण कक्ष',

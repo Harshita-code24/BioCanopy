@@ -226,7 +226,7 @@ export function AdvisorPage() {
         : 'Drink 400ml water every 45 mins',
       safeHours: isExtreme ? 'Before 9:30 AM or after 7:00 PM' : 'Before 11:30 AM or after 5:30 PM',
       source: 'CPCB & IMD Validated Rules Engine v2.4',
-      personaTip: 'Wear breathable cotton clothing and favor shaded pedestrian corridors.',
+      personaTip: language === 'hi' ? 'हल्के सूती कपड़े पहनें और पीने का पानी साथ रखें।' : language === 'mr' ? 'हलके सुती कपडे वापरा आणि सोबत पाणी ठेवा.' : 'Wear light cotton clothes and carry drinking water.',
       asphaltTemp: Math.round(temperature + 7.5),
       heatIndex: Math.round(temperature + 3),
       hourly: [
@@ -391,10 +391,7 @@ export function AdvisorPage() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-emerald-500/20 pt-4 text-xs text-[#94BDB2]">
-            <span>Validated: CPCB Mandir Marg + IMD Safdarjung</span>
-            <span className="text-emerald-400 font-semibold">{dynamicTip.source}</span>
-          </div>
+
         </div>
 
         {/* Right: Dynamic Interactive Condition Slider & Live Telemetry Context */}
@@ -515,9 +512,7 @@ export function AdvisorPage() {
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-emerald-400">
-            {language === 'hi' ? 'स्वचालित सौर विकिरण मूल्यांकन' : 'Diurnal Solar & Thermal Arc Evaluation'}
-          </span>
+
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 text-center text-xs">
