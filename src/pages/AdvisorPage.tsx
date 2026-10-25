@@ -544,8 +544,12 @@ export function AdvisorPage() {
         onClick={() => setIsCopilotOpen(true)}
         className="fixed bottom-6 right-6 z-40 flex items-center gap-3 rounded-2xl border border-cyan-400/40 bg-[#081815]/95 px-4 py-3 text-white shadow-[0_8px_30px_rgba(0,0,0,0.85),0_0_20px_rgba(34,211,238,0.25)] backdrop-blur-xl transition hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.4)]"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-500/40 shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-          <Sparkles className="h-4 w-4" />
+        <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-cyan-500/30 shadow-[0_0_12px_rgba(34,211,238,0.3)] p-1">
+          <img
+            src="/ai-logo.png"
+            alt="BioCanopy AI"
+            className="h-full w-full object-contain drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]"
+          />
         </div>
         <div className="text-left">
           <div className="flex items-center gap-1.5">
@@ -572,8 +576,12 @@ export function AdvisorPage() {
             {/* Copilot Header */}
             <div className="flex items-center justify-between border-b border-emerald-500/20 bg-gradient-to-r from-[#0C241E] to-[#071613] px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-                  <Sparkles className="h-5 w-5" />
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.3)] p-1.5">
+                  <img
+                    src="/ai-logo.png"
+                    alt="BioCanopy AI"
+                    className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]"
+                  />
                 </div>
                 <div>
                   <h3 className="text-sm font-black text-white flex items-center gap-2">
@@ -623,25 +631,36 @@ export function AdvisorPage() {
                   key={msg.id}
                   className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
                 >
-                  <div
-                    className={`max-w-[85%] rounded-2xl p-3 text-xs sm:text-sm leading-relaxed ${
-                      msg.sender === 'user'
-                        ? 'bg-emerald-600 text-white rounded-tr-none shadow-md'
-                        : 'bg-[#0B201B] text-[#ECFDF5] border border-cyan-500/30 rounded-tl-none shadow-md'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                  <div className="mt-1 flex items-center gap-2 text-[10px] text-[#94BDB2]/70 px-1">
-                    {msg.source && <span className="font-semibold text-cyan-400">{msg.source}</span>}
-                    <span>{msg.time}</span>
+                  <div className={`flex items-start gap-2 max-w-[88%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {msg.sender === 'ai' && (
+                      <div className="relative mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#061C19] to-[#041215] border border-cyan-500/30 p-0.5 shadow-[0_0_6px_rgba(34,211,238,0.25)]">
+                        <img src="/ai-logo.png" alt="AI" className="h-full w-full object-contain" />
+                      </div>
+                    )}
+                    <div>
+                      <div
+                        className={`rounded-2xl p-3 text-xs sm:text-sm leading-relaxed ${
+                          msg.sender === 'user'
+                            ? 'bg-emerald-600 text-white rounded-tr-none shadow-md'
+                            : 'bg-[#0B201B] text-[#ECFDF5] border border-cyan-500/30 rounded-tl-none shadow-md'
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                      <div className="mt-1 flex items-center gap-2 text-[10px] text-[#94BDB2]/70 px-1">
+                        {msg.source && <span className="font-semibold text-cyan-400">{msg.source}</span>}
+                        <span>{msg.time}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
 
               {isSendingChat && (
-                <div className="flex items-center gap-2 text-xs text-cyan-300 bg-[#0B201B] p-3 rounded-2xl border border-cyan-500/30 w-fit">
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin text-cyan-400" />
+                <div className="flex items-center gap-2.5 text-xs text-cyan-300 bg-[#0B201B] p-3 rounded-2xl border border-cyan-500/30 w-fit">
+                  <div className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#061C19] to-[#041215] border border-cyan-500/30 p-0.5">
+                    <img src="/ai-logo.png" alt="AI" className="h-full w-full object-contain animate-pulse" />
+                  </div>
                   <span>Evaluating meteorological telemetry & health guidelines...</span>
                 </div>
               )}
