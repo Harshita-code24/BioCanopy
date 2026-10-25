@@ -279,33 +279,7 @@ export function AdvisorPage() {
         )}
       </div>
 
-      {/* Demographic Persona Selector Bar */}
-      <div className="rounded-2xl border border-emerald-500/20 bg-[#0A1B17] p-3 flex flex-wrap items-center justify-between gap-3">
-        <span className="text-xs font-bold text-[#94BDB2] flex items-center gap-1.5">
-          <Users className="h-4 w-4 text-emerald-400" />
-          <span>{language === 'hi' ? 'लक्षित समूह चुनें:' : language === 'mr' ? 'गट निवडा:' : 'Target Demographic:'}</span>
-        </span>
-        <div className="flex flex-wrap gap-1.5">
-          {personas.map((p) => {
-            const Icon = p.icon;
-            const active = persona === p.id;
-            return (
-              <button
-                key={p.id}
-                onClick={() => setPersona(p.id)}
-                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                  active
-                    ? 'bg-emerald-600 text-white shadow-glow border border-emerald-400/50'
-                    : 'bg-[#081412] text-[#94BDB2] hover:text-white border border-emerald-500/20'
-                }`}
-              >
-                <Icon className={`h-3.5 w-3.5 ${active ? 'text-white' : 'text-emerald-400'}`} />
-                <span>{p.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+
 
       {/* Main Interactive Advisor Grid */}
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
