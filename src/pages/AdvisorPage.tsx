@@ -314,8 +314,12 @@ export function AdvisorPage() {
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-950/60 p-1.5 ring-1 ring-cyan-500/40 shadow-glow overflow-hidden">
-                  <img src="/ai-logo.png" alt="BioCanopy AI" className="h-full w-full object-contain" />
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.2)] p-1.5">
+                  <img
+                    src="/ai-logo.png"
+                    alt="BioCanopy AI"
+                    className="h-full w-full object-contain drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] transition hover:scale-105"
+                  />
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
