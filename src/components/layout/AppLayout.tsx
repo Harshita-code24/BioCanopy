@@ -172,21 +172,13 @@ export function AppLayout() {
                 {/* Curtain Header - cleanly formatted without duplicate user & roll-up pills */}
                 <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1.5 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#061C19] to-[#041215] border border-emerald-500/40 p-1.5 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                       <img src="/biocanopy-logo.png" alt="BioCanopy" className="h-full w-full object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-black tracking-tight text-white">
-                          Bio<span className="text-emerald-400">Canopy</span>
-                        </span>
-                        <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
-                          {t.nav.canopyMenu}
-                        </span>
-                      </div>
-                      <p className="text-xs font-semibold text-[#94BDB2]">
-                        {t.common.tagline}
-                      </p>
+                      <h2 className="text-lg font-black tracking-tight text-white">
+                        {t.nav.canopyMenu}
+                      </h2>
                     </div>
                   </div>
                 </div>
