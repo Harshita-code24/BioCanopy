@@ -550,7 +550,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         'Mild temperatures. Ideal for walking, cycling, and park visits.',
     },
     admin: {
-      title: 'Municipal Authority Command Center',
+      title: 'Authority Command Center',
       subtitle: 'Review citizen hazard flags, prioritize field teams, and dispatch tree plantation crews',
       roleBadge: 'City Admin',
       kpiTotalReports: 'Total Reports',
@@ -881,7 +881,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         'तापमान सुखद है। पैदल चलने और पार्कों में घूमने के लिए उत्तम समय।',
     },
     admin: {
-      title: 'नगरपालिका प्राधिकरण कमांड सेंटर',
+      title: 'प्राधिकरण कमांड सेंटर',
       subtitle: 'नागरिक शिकायतों की समीक्षा करें, वृक्षारोपण दल भेजें और शहर की हरियाली बढ़ाएं',
       roleBadge: 'शहर प्रशासक',
       kpiTotalReports: 'कुल रिपोर्ट',
@@ -1212,7 +1212,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         'तापमान सुखद आहे. चालण्यासाठी आणि उद्यानात जाण्यासाठी उत्तम वेळ.',
     },
     admin: {
-      title: 'महानगरपालिका प्रशासन नियंत्रण कक्ष',
+      title: 'प्राधिकरण नियंत्रण कक्ष',
       subtitle: 'नागरिक तक्रारी तपासा, वृक्षारोपण मोहीम राबवा आणि शहराचे हरित आच्छादन वाढवा',
       roleBadge: 'शहर प्रशासक',
       kpiTotalReports: 'एकूण तक्रारी',

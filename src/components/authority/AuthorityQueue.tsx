@@ -51,7 +51,7 @@ export function AuthorityQueue() {
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1 rounded-md bg-[#14532D] px-2 py-0.5 text-xs font-bold text-emerald-300">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Municipal Command Center
+                Authority Command Center
               </span>
               <span className="text-xs text-gray-400">·</span>
               <span className="text-xs font-semibold text-gray-600">
@@ -68,7 +68,7 @@ export function AuthorityQueue() {
 
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-900">
-              Active Municipal Sync: LIVE
+              Active Authority Sync: LIVE
             </span>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function AuthorityQueue() {
                 <th className="px-4 py-3">Canopy Deficit</th>
                 <th className="px-4 py-3">Surface Heat</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Municipal Action</th>
+                <th className="px-5 py-3 text-right">Authority Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
